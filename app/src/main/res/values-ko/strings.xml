@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LVL Monitor</string>
+    <string name="nav_sub_menu_open_source">오픈소스 라이선스</string>
+</resources>
