@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/navigation_item_nomedia"
+            android:title="dfdf" />
+        <item
+            android:id="@+id/navigation_item_test"
+            android:title="ddddd" />
+    </group>
+
+    <item android:title="etc">
+        <menu>
+            <item
+                android:icon="@drawable/ic_launcher_background"
+                android:id="@+id/nav_sub_menu_item01"
+                android:title="OpenSource" />
+        </menu>
+    </item>
+</menu>
