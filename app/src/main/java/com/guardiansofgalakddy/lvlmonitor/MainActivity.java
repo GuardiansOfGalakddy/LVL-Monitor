@@ -6,19 +6,28 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
-    /* Map 관련 객체 */
-    private SupportMapFragment mapFragment;
+    /* Map 관련 객체 - onegold */
+    SupportMapFragment mapFragment;
+    GoogleMap map;
 
     private DrawerLayout drawerLayout;
 
@@ -80,5 +89,38 @@ public class MainActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /* Google Map 처음 설정 */
+    private void initGoogleMap(){
+        mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map_monitor);
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                Log.d("Map", "지도 준비됨");
+                map = googleMap;
+            }
+        });
+        try{
+            MapsInitializer.initialize(this);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+    /* Google Map 위치 정보 get, 위치 지정 */
+    private void startLocationService(){
+        LocationManager manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+        try{
+            Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(location != null){
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
