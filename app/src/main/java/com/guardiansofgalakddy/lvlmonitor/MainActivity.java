@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,11 +35,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
-                    case R.id.navigation_item_nomedia:
-                        Toast.makeText(getApplicationContext(), "nomedia", Toast.LENGTH_LONG).show();
+                    case R.id.navigation_item_tmp:
+                        Toast.makeText(getApplicationContext(), "tmp1", Toast.LENGTH_LONG).show();
                         break;
-                    case R.id.navigation_item_test:
-                        Toast.makeText(getApplicationContext(), "Test mic", Toast.LENGTH_LONG).show();
+                    case R.id.navigation_item_tmp2:
+                        Toast.makeText(getApplicationContext(), "tmp2", Toast.LENGTH_LONG).show();
+                        break;
+                    case R.id.nav_sub_menu_open_source:
+                        Intent intent = new Intent(getApplicationContext(), OssLicensesMenuActivity.class);
+                        startActivity(intent);
                         break;
                 }
                 return true;

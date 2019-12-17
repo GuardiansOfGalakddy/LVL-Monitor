@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LVL Monitor</string>
+    <string name="nav_sub_menu_open_source">Open Source license</string>
 </resources>

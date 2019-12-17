@@ -3,19 +3,19 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/navigation_item_nomedia"
-            android:title="dfdf" />
+            android:id="@+id/navigation_item_tmp"
+            android:title="tmp1" />
         <item
-            android:id="@+id/navigation_item_test"
-            android:title="ddddd" />
+            android:id="@+id/navigation_item_tmp2"
+            android:title="tmp2" />
     </group>
 
     <item android:title="etc">
         <menu>
             <item
-                android:icon="@drawable/ic_launcher_background"
-                android:id="@+id/nav_sub_menu_item01"
-                android:title="OpenSource" />
+                android:id="@+id/nav_sub_menu_open_source"
+                android:icon="@android:drawable/ic_menu_help"
+                android:title="@string/nav_sub_menu_open_source" />
         </menu>
     </item>
 </menu>
