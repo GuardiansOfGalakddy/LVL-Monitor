@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ActionBar actionBar = getSupportActionBar();
-        //actionBar.setHomeAsUpIndicator(R.drawable.ic_launcher_foreground);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         drawerLayout = findViewById(R.id.drawer_layout);
