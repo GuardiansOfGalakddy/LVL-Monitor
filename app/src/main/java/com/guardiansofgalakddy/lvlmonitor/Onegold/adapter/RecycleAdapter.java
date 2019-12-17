@@ -1,4 +1,4 @@
-package com.guardiansofgalakddy.lvlmonitor.com.guardiansofgalakddy.lvlmonitor.onegold.adapter;
+package com.guardiansofgalakddy.lvlmonitor.Onegold.adapter;
 
 public class RecycleAdapter {
     private AdapterState state;

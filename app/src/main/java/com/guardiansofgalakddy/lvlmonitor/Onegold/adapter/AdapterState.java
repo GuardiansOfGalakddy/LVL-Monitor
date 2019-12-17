@@ -1,4 +1,6 @@
-package com.guardiansofgalakddy.lvlmonitor.com.guardiansofgalakddy.lvlmonitor.onegold.adapter;
+package com.guardiansofgalakddy.lvlmonitor.Onegold.adapter;
+
+import com.guardiansofgalakddy.lvlmonitor.Onegold.adapter.RecycleAdapter;
 
 public interface AdapterState {
     public void changeMonitor(RecycleAdapter adapter);

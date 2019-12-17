@@ -17,6 +17,9 @@ import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
+    /* Map 관련 객체 */
+    private SupportMapFragment mapFragment;
+
     private DrawerLayout drawerLayout;
 
     @Override

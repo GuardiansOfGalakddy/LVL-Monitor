@@ -1,4 +1,4 @@
-package com.guardiansofgalakddy.lvlmonitor.com.guardiansofgalakddy.lvlmonitor.onegold.adapter;
+package com.guardiansofgalakddy.lvlmonitor.Onegold.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +11,7 @@ import com.guardiansofgalakddy.lvlmonitor.R;
 
 import java.util.ArrayList;
 
-public class CollectorAdapter extends RecyclerView.Adapter<CollectorAdapter.ViewHolder> implements AdapterState{
+public class CollectorAdapter extends RecyclerView.Adapter<CollectorAdapter.ViewHolder> implements AdapterState {
     private static CollectorAdapter collector = null;
     ArrayList<Collector> items = new ArrayList<>();
 

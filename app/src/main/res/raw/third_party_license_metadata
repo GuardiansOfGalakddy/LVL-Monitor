@@ -26,8 +26,7 @@
 1200:46 repository
 1248:46 common
 1296:46 apkzlib
-1344:46 aapt2-proto
-1392:46 protos
-1440:46 apksig
-1488:46 annotations
-1536:46 error_prone_annotations
+1344:46 protos
+1392:46 apksig
+1440:46 annotations
+1488:46 error_prone_annotations
