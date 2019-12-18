@@ -7,6 +7,13 @@
     android:orientation="vertical"
     tools:context=".MonitorActivity">
 
+    <fragment
+        android:id="@+id/map_monitor"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="7"
+        class="com.google.android.gms.maps.SupportMapFragment"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="0dp"

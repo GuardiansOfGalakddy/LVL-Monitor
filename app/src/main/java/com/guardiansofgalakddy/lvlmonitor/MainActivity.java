@@ -118,8 +118,10 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
             }
         });
 
+        /* AutoPermission 권한 요청 */
         AutoPermissions.Companion.loadAllPermissions(this, 101);
         initialize();
+
     }
 
     @Override
@@ -132,6 +134,12 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        AutoPermissions.Companion.parsePermissions(this,requestCode,permissions,this);
+    }
+  
     private void initialize() {
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, "this device does not support BLE", Toast.LENGTH_SHORT).show();
