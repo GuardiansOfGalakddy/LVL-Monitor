@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">LVL Monitor</string>
     <string name="nav_sub_menu_open_source">오픈소스 라이선스</string>
+    <string name="btn_scan">스캔 시작</string>
 </resources>
