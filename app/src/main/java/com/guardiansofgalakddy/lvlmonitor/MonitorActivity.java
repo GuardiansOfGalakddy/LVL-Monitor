@@ -20,20 +20,26 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Arrays;
+import java.util.Currency;
 import java.util.List;
 
-/* Google Map 관련 코드 - 천우진
+/* Google Map code - onegold11
 *  GPSListener, startLocationService(), initGoogleMap()
-*  Manifest 수정 사항: permission, user-permission, uses-feature, uses-library, meta-data,
-*  build.gradle 수정 사항: AutoPermissions 추가, google map services 추가 */
+*  Manifest changes: permission, user-permission, uses-feature, uses-library, meta-data,
+*  build.gradle changes: AutoPermissions add, google map services add */
 
 public class MonitorActivity extends AppCompatActivity {
-    /* Map 관련 객체 */
+    /* Map object */
     SupportMapFragment mapFragment;
     GoogleMap map;
+    MarkerOptions myLocationMarker;
+
+
     private RecyclerAdapter adapter;
 
     @Override
@@ -41,10 +47,10 @@ public class MonitorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
 
-        //리사이클러뷰 시작
+        // Recycle view start
         init();
         getData();
-        /* Google Map 설정 */
+        /* Google Map setting */
         initGoogleMap();
     }
     private void init() {
@@ -114,13 +120,14 @@ public class MonitorActivity extends AppCompatActivity {
 
     /* Google Map 처음 설정 */
     private void initGoogleMap(){
-        /* Google Map Fragment 등록 */
+        /* Google Map Fragment register */
         mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map_monitor);
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 map = googleMap;
-                /* Google Map 위치 설정 */
+                map.setMyLocationEnabled(true);
+                /* Google Map location setting */
                 startLocationService();
             }
         });
@@ -130,25 +137,25 @@ public class MonitorActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    /* Google Map 위치 정보 get, 위치 지정 */
+    /* Google Map location information get, location set */
     private void startLocationService(){
         LocationManager manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
-        try{// 위치 권한 및 위치 설정 ON 확인
-            // False: finish(), 이전 액티비티로
+        try{// check gps authority and gps On
+            // False: finish(), before activity
             if((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) ||
                     !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
                 Toast.makeText(getApplicationContext(), "GPS 권한이 없거나 위치 기능이 꺼져있습니다.", Toast.LENGTH_LONG).show();
                 finish();
             }
-            // 위치 정보 획득
+            // get location information
             Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if(location != null){
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
                 Log.d("startLocationService: ", latitude + ", " + longitude);
             }
-            // GPSListener 등록
+            // GPSListener register
             GPSListener gpsListener = new GPSListener();
             long minTime = 10000;
             float minDistance = 0;
@@ -165,14 +172,26 @@ public class MonitorActivity extends AppCompatActivity {
             Double longitude = location.getLongitude();
             Log.d("onLocationChanged: ", latitude + ", " + longitude);
 
-            // 현재 위치로 이동
+            // move camera to current location
             showCurrentLoaction(latitude, longitude);
         }
-        // 현재 위치로 Google Map 이동
+        // Move Camera to current location
         private void showCurrentLoaction(Double latitude, Double longitude){
             LatLng curPoint = new LatLng(latitude, longitude);
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(curPoint, 15));
+            // show Marker
+            showMyLocationMarker(curPoint);
             Log.d("showCurrentLocation : ",  latitude + ", " + longitude);
+        }
+        // Show my location Marker
+        private void showMyLocationMarker(LatLng curPoint){
+            if(myLocationMarker != null){
+                myLocationMarker = new MarkerOptions();
+                myLocationMarker.position(curPoint);
+                map.addMarker(myLocationMarker);
+            }else{
+                myLocationMarker.position(curPoint);
+            }
         }
 
         @Override
@@ -188,6 +207,22 @@ public class MonitorActivity extends AppCompatActivity {
         @Override
         public void onProviderDisabled(String s) {
 
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(map != null){
+            map.setMyLocationEnabled(true);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(map != null){
+            map.setMyLocationEnabled(false);
         }
     }
 }
