@@ -20,6 +20,12 @@ android {
     }
 }
 
+allprojects {
+    repositories {
+        maven {url 'https://jitpack.io'}
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'
@@ -31,4 +37,5 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-oss-licenses:11.2.2'
     implementation 'com.google.android.gms:play-services-maps:11.2.2'
+    implementation 'com.github.pedroSG94:AutoPermissions:1.0.3'
 }
