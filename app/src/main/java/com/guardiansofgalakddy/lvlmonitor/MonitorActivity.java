@@ -149,7 +149,7 @@ public class MonitorActivity extends AppCompatActivity {
                 finish();
             }
             // get location information
-            Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Location location = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             if(location != null){
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
@@ -160,20 +160,70 @@ public class MonitorActivity extends AppCompatActivity {
             long minTime = 10000;
             float minDistance = 0;
             manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, gpsListener);
+            manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, gpsListener);
         }catch (Exception e){
             e.printStackTrace();
         }
     }
     /* GPS Listener */
     public class GPSListener implements LocationListener {
+        private static final int TWO_MINUTES = 1000 * 60 * 2;
+        Location currentLocation;
+
         @Override
         public void onLocationChanged(Location location) {
-            Double latitude = location.getLatitude();
-            Double longitude = location.getLongitude();
-            Log.d("onLocationChanged: ", latitude + ", " + longitude);
+            Double latitude;
+            Double longitude;
 
+            // check best location provider
+            if(isBetterLocation(location, currentLocation)){
+                currentLocation = location;
+            }
+            latitude = currentLocation.getLatitude();
+            longitude = currentLocation.getLongitude();
+            Log.d("onLocationChanged: ", latitude + ", " + longitude + ", " + currentLocation.getProvider());
             // move camera to current location
             showCurrentLoaction(latitude, longitude);
+        }
+        // check newLocation better than currentLocation
+        public boolean isBetterLocation(Location location, Location currentBestLocation){
+            if(currentBestLocation == null){
+                return true;
+            }
+
+            long timeDelta = location.getTime() - currentBestLocation.getTime();
+            boolean isSignificatlyNewer = timeDelta > TWO_MINUTES;
+            boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;
+            boolean isNewer = timeDelta > 0;
+
+            if(isSignificatlyNewer){
+                return true;
+            }else if(isSignificantlyOlder){
+                return false;
+            }
+
+            int accuracyDelta = (int)(location.getAccuracy() - currentBestLocation.getAccuracy());
+            boolean isLessAccurate = accuracyDelta > 0;
+            boolean isMoreAccurate = accuracyDelta < 0;
+            boolean isSignificantlyLessAccurate = accuracyDelta > 200;
+
+            boolean isFromSameProvider = isSameProvider(location.getProvider(), currentBestLocation.getProvider());
+
+            if(isMoreAccurate){
+                return true;
+            }else if(isNewer && !isLessAccurate){
+                return true;
+            }else if(isNewer && !isSignificantlyLessAccurate && isFromSameProvider){
+                return true;
+            }
+            return false;
+        }
+        // check same location Provider
+        private boolean isSameProvider(String provider1, String provider2){
+            if(provider1 == null){
+                return provider2 == null;
+            }
+            return provider1.equals(provider2);
         }
         // Move Camera to current location
         private void showCurrentLoaction(Double latitude, Double longitude){
