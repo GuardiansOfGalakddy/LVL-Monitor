@@ -235,9 +235,10 @@ public class MonitorActivity extends AppCompatActivity {
         }
         // Show my location Marker
         private void showMyLocationMarker(LatLng curPoint){
-            if(myLocationMarker != null){
-                myLocationMarker = new MarkerOptions();
-                myLocationMarker.position(curPoint);
+            if(myLocationMarker == null){
+                myLocationMarker = new MarkerOptions()
+                        .position(curPoint)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
                 map.addMarker(myLocationMarker);
             }else{
                 myLocationMarker.position(curPoint);
