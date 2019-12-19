@@ -133,7 +133,7 @@ public class MonitorActivity extends AppCompatActivity {
                 finish();
             }
             // 위치 정보 획득
-            Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Location location = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             if (location != null) {
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
@@ -143,7 +143,9 @@ public class MonitorActivity extends AppCompatActivity {
             GPSListener gpsListener = new GPSListener();
             long minTime = 10000;
             float minDistance = 0;
+
             manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, gpsListener);
+            manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, gpsListener);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -167,11 +169,50 @@ public class MonitorActivity extends AppCompatActivity {
             longitude = currentLocation.getLongitude();
             Log.d("onLocationChanged: ", latitude + ", " + longitude + ", " + currentLocation.getProvider());
             // move camera to current location
-            showCurrentLoaction(latitude, longitude);
+            showCurrentLocation(latitude, longitude);
         }
+        // check newLocation better than currentLocation
+        public boolean isBetterLocation(Location location, Location currentBestLocation){
+            if(currentBestLocation == null){
+                return true;
+            }
 
+            long timeDelta = location.getTime() - currentBestLocation.getTime();
+            boolean isSignificatlyNewer = timeDelta > TWO_MINUTES;
+            boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;
+            boolean isNewer = timeDelta > 0;
+
+            if(isSignificatlyNewer){
+                return true;
+            }else if(isSignificantlyOlder){
+                return false;
+            }
+
+            int accuracyDelta = (int)(location.getAccuracy() - currentBestLocation.getAccuracy());
+            boolean isLessAccurate = accuracyDelta > 0;
+            boolean isMoreAccurate = accuracyDelta < 0;
+            boolean isSignificantlyLessAccurate = accuracyDelta > 200;
+
+            boolean isFromSameProvider = isSameProvider(location.getProvider(), currentBestLocation.getProvider());
+
+            if(isMoreAccurate){
+                return true;
+            }else if(isNewer && !isLessAccurate){
+                return true;
+            }else if(isNewer && !isSignificantlyLessAccurate && isFromSameProvider){
+                return true;
+            }
+            return false;
+        }
+        // check same location Provider
+        private boolean isSameProvider(String provider1, String provider2){
+            if(provider1 == null){
+                return provider2 == null;
+            }
+            return provider1.equals(provider2);
+        }
         // 현재 위치로 Google Map 이동
-        private void showCurrentLoaction(Double latitude, Double longitude) {
+        private void showCurrentLocation(Double latitude, Double longitude) {
             LatLng curPoint = new LatLng(latitude, longitude);
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(curPoint, 15));
             Log.d("showCurrentLocation : ", latitude + ", " + longitude);
