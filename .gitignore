@@ -83,3 +83,7 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+# license
+app/src/main/res/raw/third_party_license_metadata
+app/src/main/res/raw/third_party_licenses

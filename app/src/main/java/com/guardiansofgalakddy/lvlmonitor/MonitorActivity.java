@@ -26,7 +26,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
 
@@ -36,9 +38,12 @@ import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
  *  build.gradle 수정 사항: AutoPermissions 추가, google map services 추가 */
 
 public class MonitorActivity extends AppCompatActivity {
-    /* Map 관련 객체 */
+    /* Map object */
     SupportMapFragment mapFragment;
     GoogleMap map;
+    MarkerOptions myLocationMarker;
+
+
     private RecyclerAdapter adapter;
     private BLEScanner scanner = null;
     private BroadcastReceiver receiver = null;
@@ -104,7 +109,8 @@ public class MonitorActivity extends AppCompatActivity {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 map = googleMap;
-                /* Google Map 위치 설정 */
+                map.setMyLocationEnabled(true);
+                /* Google Map location setting */
                 startLocationService();
             }
         });
@@ -127,17 +133,19 @@ public class MonitorActivity extends AppCompatActivity {
                 finish();
             }
             // 위치 정보 획득
-            Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Location location = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             if (location != null) {
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
                 Log.d("startLocationService: ", latitude + ", " + longitude);
             }
-            // GPSListener 등록
+            // GPSListener register
             GPSListener gpsListener = new GPSListener();
             long minTime = 10000;
             float minDistance = 0;
+
             manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, gpsListener);
+            manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, gpsListener);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -145,21 +153,80 @@ public class MonitorActivity extends AppCompatActivity {
 
     /* GPS Listener */
     public class GPSListener implements LocationListener {
+        private static final int TWO_MINUTES = 1000 * 60 * 2;
+        Location currentLocation;
+
         @Override
         public void onLocationChanged(Location location) {
-            Double latitude = location.getLatitude();
-            Double longitude = location.getLongitude();
-            Log.d("onLocationChanged: ", latitude + ", " + longitude);
+            Double latitude;
+            Double longitude;
 
-            // 현재 위치로 이동
-            showCurrentLoaction(latitude, longitude);
+            // check best location provider
+            if(isBetterLocation(location, currentLocation)){
+                currentLocation = location;
+            }
+            latitude = currentLocation.getLatitude();
+            longitude = currentLocation.getLongitude();
+            Log.d("onLocationChanged: ", latitude + ", " + longitude + ", " + currentLocation.getProvider());
+            // move camera to current location
+            showCurrentLocation(latitude, longitude);
         }
+        // check newLocation better than currentLocation
+        public boolean isBetterLocation(Location location, Location currentBestLocation){
+            if(currentBestLocation == null){
+                return true;
+            }
 
+            long timeDelta = location.getTime() - currentBestLocation.getTime();
+            boolean isSignificatlyNewer = timeDelta > TWO_MINUTES;
+            boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;
+            boolean isNewer = timeDelta > 0;
+
+            if(isSignificatlyNewer){
+                return true;
+            }else if(isSignificantlyOlder){
+                return false;
+            }
+
+            int accuracyDelta = (int)(location.getAccuracy() - currentBestLocation.getAccuracy());
+            boolean isLessAccurate = accuracyDelta > 0;
+            boolean isMoreAccurate = accuracyDelta < 0;
+            boolean isSignificantlyLessAccurate = accuracyDelta > 200;
+
+            boolean isFromSameProvider = isSameProvider(location.getProvider(), currentBestLocation.getProvider());
+
+            if(isMoreAccurate){
+                return true;
+            }else if(isNewer && !isLessAccurate){
+                return true;
+            }else if(isNewer && !isSignificantlyLessAccurate && isFromSameProvider){
+                return true;
+            }
+            return false;
+        }
+        // check same location Provider
+        private boolean isSameProvider(String provider1, String provider2){
+            if(provider1 == null){
+                return provider2 == null;
+            }
+            return provider1.equals(provider2);
+        }
         // 현재 위치로 Google Map 이동
-        private void showCurrentLoaction(Double latitude, Double longitude) {
+        private void showCurrentLocation(Double latitude, Double longitude) {
             LatLng curPoint = new LatLng(latitude, longitude);
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(curPoint, 15));
             Log.d("showCurrentLocation : ", latitude + ", " + longitude);
+        }
+        // Show my location Marker
+        private void showMyLocationMarker(LatLng curPoint){
+            if(myLocationMarker == null){
+                myLocationMarker = new MarkerOptions()
+                        .position(curPoint)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                map.addMarker(myLocationMarker);
+            }else{
+                myLocationMarker.position(curPoint);
+            }
         }
 
         @Override
@@ -175,6 +242,22 @@ public class MonitorActivity extends AppCompatActivity {
         @Override
         public void onProviderDisabled(String s) {
 
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(map != null){
+            map.setMyLocationEnabled(true);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(map != null){
+            map.setMyLocationEnabled(false);
         }
     }
 }
