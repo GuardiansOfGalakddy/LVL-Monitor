@@ -78,6 +78,7 @@ public class MonitorActivity extends AppCompatActivity {
                 "tx15",
                 "tx16"
         );
+
         List<Integer> listResId = Arrays.asList(
                 R.drawable.ic_launcher_background,
                 R.drawable.ic_launcher_background,
