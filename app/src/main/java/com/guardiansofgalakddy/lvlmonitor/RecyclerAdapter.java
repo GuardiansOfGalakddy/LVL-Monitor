@@ -37,8 +37,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
     }
 
     void addItem(Data data) {
+        if(isAlreadyExist(data))
+            return;
         // 외부에서 item을 추가시킬 함수입니다.
         listData.add(data);
+    }
+
+    public Boolean isAlreadyExist(Data data) {
+        for (Data d : listData)
+            if (d.getTitle().equals(data.getTitle()))
+                return true;
+        return false;
     }
 
     // RecyclerView의 핵심인 ViewHolder 입니다.
