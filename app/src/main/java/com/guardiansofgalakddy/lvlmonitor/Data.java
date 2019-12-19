@@ -5,6 +5,12 @@ public class Data {
     private String content;
     private int resId;
 
+    public Data(String title, String content, int resId) {
+        this.title = title;
+        this.content = content;
+        this.resId = resId;
+    }
+
     public String getTitle() {
         return title;
     }
