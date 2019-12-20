@@ -1,22 +1,22 @@
-package com.guardiansofgalakddy.lvlmonitor.junhwa;
+package com.guardiansofgalakddy.lvlmonitor.seungju;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class StudentsDBManager {
+public class LVLDBManager {
 
-    static final String DB_STUDENTS = "Students.db";
-    static final String TABLE_STUDENTS = "Studentss";
+    static final String DB_STUDENTS = "LVL.db";
+    static final String TABLE_STUDENTS = "LVL";
     static final int DB_VERSION = 1;
 
     Context mContext = null;
 
-    private static StudentsDBManager mDbManager = null;
+    private static LVLDBManager mDbManager = null;
     private SQLiteDatabase mDatabase = null;
 
-    private StudentsDBManager(Context context) {
+    private LVLDBManager(Context context) {
         mContext = context;
 
         mDatabase = context.openOrCreateDatabase(DB_STUDENTS,Context.MODE_PRIVATE,null);
@@ -29,11 +29,11 @@ public class StudentsDBManager {
                 "longitude TEXT); ");
     }
 
-    public static StudentsDBManager getInstance(Context context)
+    public static LVLDBManager getInstance(Context context)
     {
         if(mDbManager ==null)
         {
-            mDbManager = new StudentsDBManager(context);
+            mDbManager = new LVLDBManager(context);
         }
         return mDbManager;
     }

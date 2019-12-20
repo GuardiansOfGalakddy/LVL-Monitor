@@ -32,8 +32,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
-import com.guardiansofgalakddy.lvlmonitor.junhwa.StudentsDBManager;
+import com.guardiansofgalakddy.lvlmonitor.seungju.BLEScanner;
+import com.guardiansofgalakddy.lvlmonitor.seungju.LVLDBManager;
 
 /* Google Map 관련 코드 - 천우진
  *  GPSListener, startLocationService(), initGoogleMap()
@@ -53,14 +53,14 @@ public class MonitorActivity extends AppCompatActivity {
 
     HexToByte hTB = null;
 
-    public StudentsDBManager mDbManager = null;
+    public LVLDBManager mDbManager = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
         // initialize database
-        mDbManager = StudentsDBManager.getInstance(this);
+        mDbManager = LVLDBManager.getInstance(this);
         //sql_insert
 
         ContentValues addRowValue = new ContentValues();
