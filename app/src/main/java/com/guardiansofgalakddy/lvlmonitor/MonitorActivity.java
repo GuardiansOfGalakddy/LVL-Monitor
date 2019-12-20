@@ -8,10 +8,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -31,6 +33,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
+import com.guardiansofgalakddy.lvlmonitor.junhwa.StudentsDBManager;
 
 /* Google Map 관련 코드 - 천우진
  *  GPSListener, startLocationService(), initGoogleMap()
@@ -50,11 +53,50 @@ public class MonitorActivity extends AppCompatActivity {
 
     HexToByte hTB = null;
 
+    public StudentsDBManager mDbManager = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
+        // initialize database
+        mDbManager = StudentsDBManager.getInstance(this);
+        //sql_insert
 
+        ContentValues addRowValue = new ContentValues();
+        addRowValue.put("systemid","00525");
+        addRowValue.put("latitude","37.11111111");
+        addRowValue.put("longitude","127.11111111");
+
+        long insertRecordId = mDbManager.insert(addRowValue);
+        Log.d("insert" ,String.valueOf(insertRecordId));
+
+        //
+        //sql_query
+
+        String[] columns = new String[] {"_id","systemid","latitude","longitude"};
+        Cursor c = mDbManager.query(columns,null,null,null,null,null);
+
+        if(c !=null)
+        {
+            //mDisplayDbEt.setText("");
+
+            while(c.moveToNext())
+            {
+                int id = c.getInt(0);
+                String systemid = c.getString(1);
+                String latitude = c.getString(2);
+                String longitude = c.getString(3);
+
+
+                //mDisplayDbEt.append("id : "+id+"\n"+"systemid : "+systemid+"\n"+"latitude : "+latitude+"\n"+"longitude : "+longitude+"\n");
+                Log.d("query",id+"  "+systemid+"  "+latitude+"  "+longitude + "  "+c.getCount());
+            }
+            //mDisplayDbEt.append("\n Total : "+ c.getCount());
+            c.close();
+        }
+
+        //
         Button scanButton = findViewById(R.id.btn_scan);
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -245,7 +287,7 @@ public class MonitorActivity extends AppCompatActivity {
         private void showCurrentLocation(Double latitude, Double longitude) {
             LatLng curPoint = new LatLng(latitude, longitude);
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(curPoint, 15));
-            Log.d("showCurrentLocation : ", latitude + ", " + longitude);
+            Log.d("showCurrentLocation : ", latitude + ", " + longitude); //위도, 경도
         }
 
         // Show my location Marker
