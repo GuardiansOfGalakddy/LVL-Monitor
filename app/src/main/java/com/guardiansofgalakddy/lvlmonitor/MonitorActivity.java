@@ -128,20 +128,15 @@ public class MonitorActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
-    /* Google Map 처음 설정 */
+    /* Google Map first setting */
     private void initGoogleMap() {
-        /* get GPSListener object */
-        gpsListener = GPSListener.getInstance();
-        /* Google Map Fragment 등록 */
+        /* Google Map Fragment register */
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_monitor);
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
-                GoogleMap map = googleMap;
-                map.setMyLocationEnabled(true);
-                gpsListener.setMap(map);
-                /* Google Map location setting */
-                startLocationService();
+                /* Google Map setting */
+                startLocationService(googleMap);
             }
         });
         try {
@@ -151,16 +146,27 @@ public class MonitorActivity extends AppCompatActivity {
         }
     }
 
-    /* Google Map 위치 정보 get, 위치 지정 */
-    private void startLocationService() {
+    /* Google Map location information get, location setting */
+    private void startLocationService(GoogleMap googleMap) {
         LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        GoogleMap map = googleMap;
+        map.setMyLocationEnabled(true);
 
-        try {// 위치 권한 및 위치 설정 ON 확인
-            // False: finish(), 이전 액티비티로
+        /* set GPSListener map */
+        gpsListener = new GPSListener(map);
+
+        try {// Check location authority and location function available
+            // False: finish()
             if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) ||
                     !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 Toast.makeText(getApplicationContext(), "GPS 권한이 없거나 위치 기능이 꺼져있습니다.", Toast.LENGTH_LONG).show();
                 finish();
+            }
+
+            /* set current location */
+            Location location = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if(location != null){
+                gpsListener.onLocationChanged(location);
             }
 
             // GPSListener register
