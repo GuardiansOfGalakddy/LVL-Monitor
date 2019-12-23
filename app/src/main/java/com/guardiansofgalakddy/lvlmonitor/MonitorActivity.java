@@ -1,11 +1,5 @@
 package com.guardiansofgalakddy.lvlmonitor;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,15 +14,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListener;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
 
@@ -41,6 +35,7 @@ import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
 public class MonitorActivity extends AppCompatActivity {
     /* Map object */
     private SupportMapFragment mapFragment;
+    private LocationManager locationManager;
     private GPSListener gpsListener;
 
 
@@ -148,9 +143,8 @@ public class MonitorActivity extends AppCompatActivity {
 
     /* Google Map location information get, location setting */
     private void startLocationService(GoogleMap googleMap) {
-        LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         GoogleMap map = googleMap;
-        map.setMyLocationEnabled(true);
 
         /* set GPSListener map */
         gpsListener = new GPSListener(map);
@@ -158,23 +152,24 @@ public class MonitorActivity extends AppCompatActivity {
         try {// Check location authority and location function available
             // False: finish()
             if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) ||
-                    !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 Toast.makeText(getApplicationContext(), "GPS 권한이 없거나 위치 기능이 꺼져있습니다.", Toast.LENGTH_LONG).show();
                 finish();
             }
 
-            /* set current location */
-            Location location = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if(location != null){
-                gpsListener.onLocationChanged(location);
+            /* set camera and marker start location */
+            /* It may be inaccurate location but soon find current location*/
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (location != null) {
+                gpsListener.showCurrentLocation(location.getLatitude(), location.getLongitude());
             }
 
             // GPSListener register
             long minTime = 10000;
             float minDistance = 0;
 
-            manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, gpsListener);
-            manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, gpsListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, gpsListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, gpsListener);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -186,6 +181,10 @@ public class MonitorActivity extends AppCompatActivity {
         super.onDestroy();
         if (gpsListener != null) {
             gpsListener.getMap().setMyLocationEnabled(false);
+
+            if (locationManager != null) {
+                locationManager.removeUpdates(gpsListener);
+            }
         }
     }
 }

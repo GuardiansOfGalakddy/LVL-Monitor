@@ -3,7 +3,6 @@ package com.guardiansofgalakddy.lvlmonitor.Onegold.Map;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -12,7 +11,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 /* GPS Listener */
 public class GPSListener implements LocationListener {
@@ -20,22 +19,18 @@ public class GPSListener implements LocationListener {
     private static final float MY_MARKER_COLOR = BitmapDescriptorFactory.HUE_ORANGE;
 
     private GoogleMap map;
-    private MarkerOptions myLocationMarker;
     private Location currentLocation;
+    private Marker myLocationMarker;
+    private HashMap<String, Marker> otherLocationMarkers = new HashMap<>();
 
+    /* first start check to movecamera */
     private boolean isOnStartMap;
 
     public GPSListener(GoogleMap map) {
         this.isOnStartMap = true;
         this.map = map;
-    }
-
-    public void setMap(GoogleMap map) {
-        this.map = map;
-    }
-
-    public GoogleMap getMap() {
-        return map;
+        /* show my location button on map */
+        map.setMyLocationEnabled(true);
     }
 
     @Override
@@ -50,12 +45,13 @@ public class GPSListener implements LocationListener {
         latitude = currentLocation.getLatitude();
         longitude = currentLocation.getLongitude();
 
-        if(isOnStartMap) {
+        if (isOnStartMap) {
             // Map start : move camera and marker
             showCurrentLocation(latitude, longitude);
             isOnStartMap = false;
-        }else{
+        } else {
             // Map in progress : only move marker
+            // prevent camera auto move
             LatLng curPoint = new LatLng(latitude, longitude);
             showMyLocationMarker(curPoint);
         }
@@ -104,7 +100,7 @@ public class GPSListener implements LocationListener {
     }
 
     // Move camera to current location on Google Map
-    private void showCurrentLocation(Double latitude, Double longitude) {
+    public void showCurrentLocation(Double latitude, Double longitude) {
         LatLng curPoint = new LatLng(latitude, longitude);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(curPoint, 15));
         showMyLocationMarker(curPoint);
@@ -113,75 +109,78 @@ public class GPSListener implements LocationListener {
     // Show my location Marker
     private void showMyLocationMarker(LatLng curPoint) {
         if (myLocationMarker == null) {
-            myLocationMarker = new MarkerOptions()
+            myLocationMarker = map.addMarker(new MarkerOptions()
                     .position(curPoint)
-                    .icon(BitmapDescriptorFactory.defaultMarker(MY_MARKER_COLOR));
-            map.addMarker(myLocationMarker);
+                    .icon(BitmapDescriptorFactory.defaultMarker(MY_MARKER_COLOR))
+            );
         } else {
-            myLocationMarker.position(curPoint);
+            myLocationMarker.setPosition(curPoint);
         }
     }
 
-
-    /* Show all receiver Marker */
-    /*
-    public void showAllReceiverMarker(ArrayList<Receiver> curPoints) {
-        for (Receiver receiver : curPoints) {
-            MarkerOptions receiverMarker = new MarkerOptions()
-                    .position(receiver.getPoint())
-                    .title(receiver.getId())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-            map.addMarker(receiverMarker);
-        }
-    }
-    */
-    /* Show all monitor Marker */
-    /*
-    public void showAllMonitorMarker(ArrayList<Monitor> curPoints) {
-        for (Monitor monitor : curPoints) {
-            MarkerOptions monitorMarker = new MarkerOptions()
-                    .position(monitor.getPoint())
-                    .title(monitor.getId())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-            map.addMarker(monitorMarker);
-        }
-    }
-    */
     /* show one receiver Marker */
-    public void showReceiverMarker(String id, Double latitude, Double longitude){
+    public void showReceiverMarker(String id, Double latitude, Double longitude) {
         LatLng curPoint = new LatLng(latitude, longitude);
 
-        MarkerOptions receiverMarker = new MarkerOptions()
+        Marker marker = map.addMarker(new MarkerOptions()
                 .position(curPoint)
                 .title(id)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-        map.addMarker(receiverMarker);
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+        );
+        otherLocationMarkers.put(id, marker);
     }
-    /* show one monitor Marker */
-    public void showMonitorMarker(String id, Double latitude, Double longitude){
+
+    /* show one monitor Marker and store */
+    public void showMonitorMarker(String id, Double latitude, Double longitude) {
         LatLng curPoint = new LatLng(latitude, longitude);
 
-        MarkerOptions monitorMarker = new MarkerOptions()
+        Marker marker = map.addMarker(new MarkerOptions()
                 .position(curPoint)
                 .title(id)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        map.addMarker(monitorMarker);
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+        );
+        otherLocationMarkers.put(id, marker);
     }
-    /* get current location data */
-    public LatLng getCurrentLocation(){
+
+    /* Update marker position */
+    public void updateMarkerPosition(String id, Double latitude, Double longitude) {
+        Marker marker = otherLocationMarkers.get(id);
+        if (marker != null) {
+            LatLng curPoint = new LatLng(latitude, longitude);
+            marker.setPosition(curPoint);
+        }
+    }
+
+    /* remove Marker by id */
+    public void removeMark(String id) {
+        Marker marker = otherLocationMarkers.get(id);
+        if (marker != null) {
+            marker.remove();
+            otherLocationMarkers.remove(id);
+        }
+    }
+
+    /* get current location data and store */
+    public LatLng getCurrentLocation() {
         Double latitude = currentLocation.getLatitude();
         Double longitude = currentLocation.getLongitude();
 
         LatLng curPoint = new LatLng(latitude, longitude);
         return curPoint;
     }
+
     /* get current latitude */
-    public double getCurrentLatitude(){
+    public double getCurrentLatitude() {
         return currentLocation.getLatitude();
     }
+
     /* get current longitude */
-    public double getCurrentLongitude(){
+    public double getCurrentLongitude() {
         return currentLocation.getLongitude();
+    }
+
+    public GoogleMap getMap() {
+        return this.map;
     }
 
     @Override
