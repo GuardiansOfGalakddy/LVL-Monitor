@@ -1,4 +1,4 @@
-package com.guardiansofgalakddy.lvlmonitor;
+package com.guardiansofgalakddy.lvlmonitor.ui;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.material.navigation.NavigationView;
+import com.guardiansofgalakddy.lvlmonitor.R;
 import com.pedro.library.AutoPermissions;
 import com.pedro.library.AutoPermissionsListener;
 

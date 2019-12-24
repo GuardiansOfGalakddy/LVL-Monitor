@@ -1,4 +1,4 @@
-package com.guardiansofgalakddy.lvlmonitor;
+package com.guardiansofgalakddy.lvlmonitor.seungju;
 
 public class Data {
     private String title;

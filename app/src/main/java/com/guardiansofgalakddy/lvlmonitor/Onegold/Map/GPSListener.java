@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.guardiansofgalakddy.lvlmonitor.seungju.LVLDBManager;
 
 import java.util.HashMap;
 
@@ -53,7 +54,7 @@ public class GPSListener implements LocationListener {
             // Map in progress : only move marker
             // prevent camera auto move
             LatLng curPoint = new LatLng(latitude, longitude);
-            showMyLocationMarker(curPoint);
+            //showMyLocationMarker(curPoint);
         }
     }
 
@@ -103,7 +104,7 @@ public class GPSListener implements LocationListener {
     public void showCurrentLocation(Double latitude, Double longitude) {
         LatLng curPoint = new LatLng(latitude, longitude);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(curPoint, 15));
-        showMyLocationMarker(curPoint);
+        //showMyLocationMarker(curPoint);
     }
 
     // Show my location Marker
@@ -169,16 +170,6 @@ public class GPSListener implements LocationListener {
         return curPoint;
     }
 
-    /* get current latitude */
-    public double getCurrentLatitude() {
-        return currentLocation.getLatitude();
-    }
-
-    /* get current longitude */
-    public double getCurrentLongitude() {
-        return currentLocation.getLongitude();
-    }
-
     public GoogleMap getMap() {
         return this.map;
     }
@@ -196,5 +187,9 @@ public class GPSListener implements LocationListener {
     @Override
     public void onProviderDisabled(String s) {
 
+    }
+
+    public void asdfasdfasdf(LVLDBManager db) {
+        db.addMarkersFromDB(map);
     }
 }

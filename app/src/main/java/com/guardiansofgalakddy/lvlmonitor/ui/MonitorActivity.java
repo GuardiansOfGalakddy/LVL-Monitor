@@ -1,7 +1,8 @@
-package com.guardiansofgalakddy.lvlmonitor;
+package com.guardiansofgalakddy.lvlmonitor.ui;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -24,8 +25,17 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+
+import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
+import com.guardiansofgalakddy.lvlmonitor.seungju.OnItemClickListener;
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListener;
+import com.guardiansofgalakddy.lvlmonitor.R;
+import com.guardiansofgalakddy.lvlmonitor.seungju.RecyclerAdapter;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
+import com.google.android.gms.maps.model.LatLng;
+
+import com.guardiansofgalakddy.lvlmonitor.seungju.LVLDBManager;
+import com.guardiansofgalakddy.lvlmonitor.superb.HexToByte;
 
 /* Google Map 관련 코드 - 천우진
  *  GPSListener, startLocationService(), initGoogleMap()
@@ -38,28 +48,21 @@ public class MonitorActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private GPSListener gpsListener;
 
-
     private RecyclerAdapter adapter;
     private BLEScanner scanner = null;
     private BroadcastReceiver receiver = null;
 
     HexToByte hTB = null;
 
+    public LVLDBManager mDbManager = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
 
-        Button scanButton = findViewById(R.id.btn_scan);
-        scanButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                scanner.discover();
-            }
-        });
-
-        /* Google Map 설정 */
         initGoogleMap();
+        mDbManager = LVLDBManager.getInstance(this);
 
         receiver = new BroadcastReceiver() {
             @Override
@@ -68,7 +71,7 @@ public class MonitorActivity extends AppCompatActivity {
                     return;
                 String uuid = intent.getStringExtra("UUID");
                 Log.d("onReceive", uuid);
-                addData(new Data(uuid.substring(2, 8), uuid, R.drawable.ic_menu));
+                adapter.addItem(new Data(uuid.substring(2, 8), uuid, R.drawable.ic_menu));
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
@@ -95,6 +98,19 @@ public class MonitorActivity extends AppCompatActivity {
             }
         });
         initializeRecyclerView();
+
+        Button scanButton = findViewById(R.id.btn_scan);
+        scanButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        scanner.discover();
+                    }
+                }).start();
+            }
+        });
     }
 
     private void showDialog(String uuid1, String uuid2) {
@@ -102,6 +118,18 @@ public class MonitorActivity extends AppCompatActivity {
             hTB = new HexToByte(this);
             hTB.initializeHexToByte(uuid1, uuid2);
             hTB.show();
+            hTB.setButtonOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ContentValues addRowValue = new ContentValues();
+                    LatLng latLng = gpsListener.getCurrentLocation();
+
+                    addRowValue.put("systemid", hTB.getSystemID());
+                    addRowValue.put("latitude", latLng.latitude);
+                    addRowValue.put("longitude", latLng.longitude);
+                    mDbManager.insert(addRowValue);
+                }
+            });
         } catch (Exception e) {
             Log.e("showDialog", e.toString());
         }
@@ -116,13 +144,6 @@ public class MonitorActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private void addData(Data data) {
-        adapter.addItem(data);
-
-        // adapter의 값이 변경되었다는 것을 알려줍니다.
-        adapter.notifyDataSetChanged();
-    }
-
     /* Google Map first setting */
     private void initGoogleMap() {
         /* Google Map Fragment register */
@@ -132,6 +153,8 @@ public class MonitorActivity extends AppCompatActivity {
             public void onMapReady(GoogleMap googleMap) {
                 /* Google Map setting */
                 startLocationService(googleMap);
+
+                mDbManager.addMarkersFromDB(googleMap);
             }
         });
         try {
@@ -160,9 +183,8 @@ public class MonitorActivity extends AppCompatActivity {
             /* set camera and marker start location */
             /* It may be inaccurate location but soon find current location*/
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (location != null) {
+            if (location != null)
                 gpsListener.showCurrentLocation(location.getLatitude(), location.getLongitude());
-            }
 
             // GPSListener register
             long minTime = 10000;
@@ -175,16 +197,14 @@ public class MonitorActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (gpsListener != null) {
             gpsListener.getMap().setMyLocationEnabled(false);
 
-            if (locationManager != null) {
+            if (locationManager != null)
                 locationManager.removeUpdates(gpsListener);
-            }
         }
     }
 }
