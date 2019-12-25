@@ -34,9 +34,9 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
 
-        <activity android:name=".CollectorActivity"></activity>
-        <activity android:name=".MonitorActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.CollectorActivity"></activity>
+        <activity android:name=".ui.MonitorActivity" />
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

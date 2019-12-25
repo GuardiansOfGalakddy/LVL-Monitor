@@ -1,6 +1,5 @@
-package com.guardiansofgalakddy.lvlmonitor;
+package com.guardiansofgalakddy.lvlmonitor.seungju;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +9,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.guardiansofgalakddy.lvlmonitor.R;
+
 import java.util.ArrayList;
 
-public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemViewHolder> implements OnItemClickListener{
+public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemViewHolder> implements OnItemClickListener {
     private ArrayList<Data> listData = new ArrayList<>();
     private OnItemClickListener listener;
 
@@ -37,11 +38,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
         return listData.size();
     }
 
-    void addItem(Data data) {
+    public void addItem(Data data) {
         if(isAlreadyExist(data))
             return;
         // 외부에서 item을 추가시킬 함수입니다.
         listData.add(data);
+        this.notifyDataSetChanged();
     }
 
     public Boolean isAlreadyExist(Data data) {
@@ -53,7 +55,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
 
     // RecyclerView의 핵심인 ViewHolder 입니다.
     // 여기서 subView를 setting 해줍니다.
-    static class ItemViewHolder extends RecyclerView.ViewHolder {
+    static public class ItemViewHolder extends RecyclerView.ViewHolder {
 
         private TextView textView1;
         private TextView textView2;

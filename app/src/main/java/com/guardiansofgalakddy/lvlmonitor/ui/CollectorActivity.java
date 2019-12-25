@@ -1,8 +1,10 @@
-package com.guardiansofgalakddy.lvlmonitor;
+package com.guardiansofgalakddy.lvlmonitor.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.guardiansofgalakddy.lvlmonitor.R;
 
 public class CollectorActivity extends AppCompatActivity {
 
