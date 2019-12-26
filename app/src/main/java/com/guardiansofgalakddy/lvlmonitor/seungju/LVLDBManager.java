@@ -16,7 +16,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class LVLDBManager {
     static final String LVL_DB = "LVL.db";
     static final String LVL_TABLE = "LVL";
-    static final int DB_VERSION = 1;
+    static final int DB_VERSION = 2;
 
     Context mContext = null;
 
@@ -30,8 +30,7 @@ public class LVLDBManager {
 
         mDatabase.execSQL(
                 "CREATE TABLE IF NOT EXISTS " + LVL_TABLE +
-                        "(_id  INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        "systemid  TEXT," +
+                        "(systemid  TEXT PRIMARY KEY UNIQUE," +
                         "latitude  DOUBLE, " +
                         "longitude DOUBLE); ");
     }
@@ -59,21 +58,9 @@ public class LVLDBManager {
         return mDatabase.delete(LVL_TABLE, whereClause, whereArgs);
     }
 
-    public Marker[] addMarkersFromDB(GoogleMap map) {
+    public Cursor getIdNLatLng() {
         String[] columns = new String[]{"systemid", "latitude", "longitude"};
         Cursor cursor = mDbManager.query(columns, null, null, null, null, null);
-        Marker[] markers = new Marker[cursor.getCount()];
-        int i = 0;
-
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                markers[i++] = map.addMarker(new MarkerOptions()
-                        .position(new LatLng(cursor.getDouble(1), cursor.getDouble(2)))
-                        .title(cursor.getString(0))
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            }
-            cursor.close();
-        }
-        return markers;
+        return cursor;
     }
 }

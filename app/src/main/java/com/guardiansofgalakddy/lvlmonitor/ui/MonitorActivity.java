@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -26,13 +27,13 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListenerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
 import com.guardiansofgalakddy.lvlmonitor.seungju.OnItemClickListener;
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListener;
 import com.guardiansofgalakddy.lvlmonitor.R;
 import com.guardiansofgalakddy.lvlmonitor.seungju.RecyclerAdapter;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
-import com.google.android.gms.maps.model.LatLng;
 
 import com.guardiansofgalakddy.lvlmonitor.seungju.LVLDBManager;
 import com.guardiansofgalakddy.lvlmonitor.superb.HexToByte;
@@ -51,6 +52,7 @@ public class MonitorActivity extends AppCompatActivity {
     private RecyclerAdapter adapter;
     private BLEScanner scanner = null;
     private BroadcastReceiver receiver = null;
+    private Cursor cursor = null;
 
     HexToByte hTB = null;
 
@@ -71,7 +73,10 @@ public class MonitorActivity extends AppCompatActivity {
                     return;
                 String uuid = intent.getStringExtra("UUID");
                 Log.d("onReceive", uuid);
-                adapter.addItem(new Data(uuid.substring(2, 8), uuid, R.drawable.ic_menu));
+                adapter.addItem(new Data(uuid.substring(2, 8) +
+                        ((Character.digit(uuid.charAt(9), 16) << 4) + Character.digit(uuid.charAt(10), 16)) +
+                        ((Character.digit(uuid.charAt(11), 16) << 4) + Character.digit(uuid.charAt(12), 16)),
+                        uuid, R.drawable.ic_menu), cursor);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
@@ -87,14 +92,7 @@ public class MonitorActivity extends AppCompatActivity {
             public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
                 Data data = adapter.getData(position);
                 String content = data.getContent();
-                String[] split = content.split("-");
-                try {
-                    String uuid1 = split[0] + split[1] + split[2];
-                    String uuid2 = split[3] + split[4];
-                    showDialog(uuid1, uuid2);
-                } catch (Exception e) {
-                    Log.e("onItemClick", e.toString());
-                }
+                showDialog(content, data);
             }
         });
         initializeRecyclerView();
@@ -113,21 +111,24 @@ public class MonitorActivity extends AppCompatActivity {
         });
     }
 
-    private void showDialog(String uuid1, String uuid2) {
+    private void showDialog(String uuid, final Data data) {
         try {
             hTB = new HexToByte(this);
-            hTB.initializeHexToByte(uuid1, uuid2);
+            hTB.initializeHexToByte(uuid);
             hTB.show();
             hTB.setButtonOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ContentValues addRowValue = new ContentValues();
-                    LatLng latLng = gpsListener.getCurrentLocation();
+                    Location location = gpsListener.getCurrentLocation();
 
                     addRowValue.put("systemid", hTB.getSystemID());
-                    addRowValue.put("latitude", latLng.latitude);
-                    addRowValue.put("longitude", latLng.longitude);
+                    addRowValue.put("latitude", location.getLatitude());
+                    addRowValue.put("longitude", location.getLongitude());
                     mDbManager.insert(addRowValue);
+                    gpsListener.showMarker(GPSListener.ALARM_ID,
+                            hTB.getSystemID(),
+                            location.getLatitude(), location.getLongitude());
                 }
             });
         } catch (Exception e) {
@@ -154,7 +155,8 @@ public class MonitorActivity extends AppCompatActivity {
                 /* Google Map setting */
                 startLocationService(googleMap);
 
-                mDbManager.addMarkersFromDB(googleMap);
+                cursor = mDbManager.getIdNLatLng();
+                gpsListener.addMarkersFromDB(GPSListener.NO_ALARM_ID, cursor);
             }
         });
         try {
@@ -167,10 +169,6 @@ public class MonitorActivity extends AppCompatActivity {
     /* Google Map location information get, location setting */
     private void startLocationService(GoogleMap googleMap) {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        GoogleMap map = googleMap;
-
-        /* set GPSListener map */
-        gpsListener = new GPSListener(map);
 
         try {// Check location authority and location function available
             // False: finish()
@@ -180,11 +178,24 @@ public class MonitorActivity extends AppCompatActivity {
                 finish();
             }
 
+            /* set GPSListener */
             /* set camera and marker start location */
             /* It may be inaccurate location but soon find current location*/
-            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (location != null)
-                gpsListener.showCurrentLocation(location.getLatitude(), location.getLongitude());
+            GPSListenerBuilder builder = GPSListenerBuilder.getInstance();
+            gpsListener = builder
+                    .setMap(googleMap)
+                    .getGpsListener();
+
+            /* set camera location */
+            /* app first start OR app restart */
+            if (gpsListener.getCurrentLocation() != null) {
+                gpsListener.showCurrentLocation();
+            } else {
+                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (location != null) {
+                    gpsListener.showLocation(location.getLatitude(), location.getLongitude());
+                }
+            }
 
             // GPSListener register
             long minTime = 10000;
