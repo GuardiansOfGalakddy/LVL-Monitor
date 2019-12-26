@@ -188,8 +188,4 @@ public class GPSListener implements LocationListener {
     public void onProviderDisabled(String s) {
 
     }
-
-    public void asdfasdfasdf(LVLDBManager db) {
-        db.addMarkersFromDB(map);
-    }
 }

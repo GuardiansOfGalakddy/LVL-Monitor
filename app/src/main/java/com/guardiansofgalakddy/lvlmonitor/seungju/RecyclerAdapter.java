@@ -1,5 +1,6 @@
 package com.guardiansofgalakddy.lvlmonitor.seungju;
 
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.guardiansofgalakddy.lvlmonitor.R;
+import com.guardiansofgalakddy.lvlmonitor.junhwa.DB2OthersConnector;
 
 import java.util.ArrayList;
 
@@ -38,10 +40,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
         return listData.size();
     }
 
-    public void addItem(Data data) {
+    public void addItem(Data data, Cursor cursor) {
         if(isAlreadyExist(data))
             return;
         // 외부에서 item을 추가시킬 함수입니다.
+        if (DB2OthersConnector.isAlreadyExistInDB(data.getTitle(), cursor))
+            data.setResId(R.drawable.ic_done);
         listData.add(data);
         this.notifyDataSetChanged();
     }

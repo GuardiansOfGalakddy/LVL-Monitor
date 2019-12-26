@@ -59,21 +59,9 @@ public class LVLDBManager {
         return mDatabase.delete(LVL_TABLE, whereClause, whereArgs);
     }
 
-    public Marker[] addMarkersFromDB(GoogleMap map) {
+    public Cursor getIdNLatLng() {
         String[] columns = new String[]{"systemid", "latitude", "longitude"};
         Cursor cursor = mDbManager.query(columns, null, null, null, null, null);
-        Marker[] markers = new Marker[cursor.getCount()];
-        int i = 0;
-
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                markers[i++] = map.addMarker(new MarkerOptions()
-                        .position(new LatLng(cursor.getDouble(1), cursor.getDouble(2)))
-                        .title(cursor.getString(0))
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            }
-            cursor.close();
-        }
-        return markers;
+        return cursor;
     }
 }
