@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import com.guardiansofgalakddy.lvlmonitor.junhwa.DB2OthersConnector;
 import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
 import com.guardiansofgalakddy.lvlmonitor.seungju.OnItemClickListener;
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListener;
@@ -51,6 +53,7 @@ public class MonitorActivity extends AppCompatActivity {
     private RecyclerAdapter adapter;
     private BLEScanner scanner = null;
     private BroadcastReceiver receiver = null;
+    private Cursor cursor = null;
 
     HexToByte hTB = null;
 
@@ -71,7 +74,10 @@ public class MonitorActivity extends AppCompatActivity {
                     return;
                 String uuid = intent.getStringExtra("UUID");
                 Log.d("onReceive", uuid);
-                adapter.addItem(new Data(uuid.substring(2, 8), uuid, R.drawable.ic_menu));
+                adapter.addItem(new Data(uuid.substring(2, 8) +
+                        ((Character.digit(uuid.charAt(9), 16) << 4) + Character.digit(uuid.charAt(10), 16)) +
+                        ((Character.digit(uuid.charAt(11), 16) << 4) + Character.digit(uuid.charAt(12), 16)),
+                        uuid, R.drawable.ic_menu), cursor);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
@@ -154,7 +160,8 @@ public class MonitorActivity extends AppCompatActivity {
                 /* Google Map setting */
                 startLocationService(googleMap);
 
-                mDbManager.addMarkersFromDB(googleMap);
+                cursor = mDbManager.getIdNLatLng();
+                DB2OthersConnector.addMarkersFromDB(googleMap, cursor);
             }
         });
         try {
