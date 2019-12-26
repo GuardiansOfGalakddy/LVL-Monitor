@@ -31,15 +31,19 @@ public class DB2OthersConnector {
     public static Boolean isAlreadyExistInDB(String title, Cursor cursor) {
         cursor.moveToFirst();
         String tmpTitle = null;
+
         try {
-            tmpTitle = new String(HexToByte.hexStringToByteArray(title), "UTF-8");
+            tmpTitle = new String(HexToByte.hexStringToByteArray(title.substring(0, 6)), "UTF-8") +
+                    title.substring(6);
             Log.d("isAlreadyExistInDB", tmpTitle);
         } catch (Exception e) {
             e.printStackTrace();
         }
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                if (cursor.getString(0).equals(tmpTitle))
+                String tmpTitle2 = cursor.getString(0);
+                Log.d("isAlreadyExistInDB()", tmpTitle2);
+                if (tmpTitle2.equals(tmpTitle))
                     return true;
             }
             //cursor.close();
