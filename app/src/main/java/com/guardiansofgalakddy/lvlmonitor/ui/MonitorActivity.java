@@ -74,10 +74,8 @@ public class MonitorActivity extends AppCompatActivity {
                     return;
                 String uuid = intent.getStringExtra("UUID");
                 Log.d("onReceive", uuid);
-                adapter.addItem(new Data(uuid.substring(2, 8) +
-                        ((Character.digit(uuid.charAt(9), 16) << 4) + Character.digit(uuid.charAt(10), 16)) +
-                        ((Character.digit(uuid.charAt(11), 16) << 4) + Character.digit(uuid.charAt(12), 16)),
-                        uuid, R.drawable.ic_menu), cursor);
+
+                adapter.addItem(new Data(uuid.substring(0, 5), uuid, R.drawable.ic_menu), cursor);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
@@ -93,14 +91,7 @@ public class MonitorActivity extends AppCompatActivity {
             public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
                 Data data = adapter.getData(position);
                 String content = data.getContent();
-                String[] split = content.split("-");
-                try {
-                    String uuid1 = split[0] + split[1] + split[2];
-                    String uuid2 = split[3] + split[4];
-                    showDialog(uuid1, uuid2);
-                } catch (Exception e) {
-                    Log.e("onItemClick", e.toString());
-                }
+                showDialog(content, data);
             }
         });
         initializeRecyclerView();
@@ -119,10 +110,10 @@ public class MonitorActivity extends AppCompatActivity {
         });
     }
 
-    private void showDialog(String uuid1, String uuid2) {
+    private void showDialog(String uuid, final Data data) {
         try {
             hTB = new HexToByte(this);
-            hTB.initializeHexToByte(uuid1, uuid2);
+            hTB.initializeHexToByte(uuid);
             hTB.show();
             hTB.setButtonOnClickListener(new View.OnClickListener() {
                 @Override
@@ -134,6 +125,11 @@ public class MonitorActivity extends AppCompatActivity {
                     addRowValue.put("latitude", latLng.latitude);
                     addRowValue.put("longitude", latLng.longitude);
                     mDbManager.insert(addRowValue);
+                    Toast.makeText(getApplicationContext(), "정상적으로 입력되었습니다.", Toast.LENGTH_LONG).show();
+                    hTB.dismiss();
+                    data.setResId(R.drawable.ic_done);
+                    adapter.notifyDataSetChanged();
+                    gpsListener.showReceiverMarker(hTB.getSystemID(), latLng.latitude, latLng.longitude);
                 }
             });
         } catch (Exception e) {
