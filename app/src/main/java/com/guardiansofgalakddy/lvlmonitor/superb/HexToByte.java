@@ -2,6 +2,7 @@ package com.guardiansofgalakddy.lvlmonitor.superb;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -11,8 +12,7 @@ import androidx.annotation.NonNull;
 import com.guardiansofgalakddy.lvlmonitor.R;
 
 public class HexToByte extends Dialog {
-    private byte[] byteArray1;
-    private byte[] byteArray2;
+    String uuid = null;
 
     private Button button;
     private TextView txtSystemID, txtAID, txtSEV, txtALM, txtSTS, txtTIME = null;
@@ -24,9 +24,8 @@ public class HexToByte extends Dialog {
         button = findViewById(R.id.button3);
     }
 
-    public void initializeHexToByte (String str1, String str2){
-        byteArray1 = hexStringToByteArray(str1);
-        byteArray2 = hexStringToByteArray(str2);
+    public void initializeHexToByte(String uuid) {
+        this.uuid = uuid;
 
         txtSystemID = findViewById(R.id.txt1);
         txtAID = findViewById(R.id.txt2);
@@ -38,49 +37,109 @@ public class HexToByte extends Dialog {
     }
 
     public void showData() {
-        if(byteArray1[1]=='R')
-            txtSystemID.setText(""+"RS-"+""+byteArray1[4]+""+byteArray1[5]);
-        else if(byteArray1[1]=='B')
-            txtSystemID.setText("" + "BS-" + "" + byteArray1[4] + "" + byteArray1[5]);
+        txtSystemID.setText(uuid.substring(0, 5));
 
-        if(byteArray1[6]==1)
-            txtAID.setText("CH1(0)_Rogowski coil channel 1");
-        else if(byteArray1[6]==2)
-            txtAID.setText("CH2(1)_Rogowski coil channel 2");
-        else if(byteArray1[6]==3)
-            txtAID.setText("CH3(2)_Rogowski coil channel 3");
-        else if(byteArray1[6]==4)
-            txtAID.setText("WL(3)_침수 센서");
+        String AID, SEV, ALM, STS = null;
+        switch (uuid.charAt(5) - '0') {
+            case 0:
+                AID = "CH1(0)_Rogowski coil channel 1";
+                break;
+            case 1:
+                AID = "CH2(1)_Rogowski coil channel 2";
+                break;
+            case 2:
+                AID = "CH3(2)_Rogowski coil channel 3";
+                break;
+            case 3:
+                AID = "WL(3)_침수 센서";
+                break;
+            default:
+                AID = "AID_Undefined code";
+                break;
+        }
+        switch (uuid.charAt(6) - '0') {
+            case 0:
+                SEV = "CR(0)_Critical Alarm";
+                break;
+            case 1:
+                SEV = "MJ(1)_Major Alarm";
+                break;
+            case 2:
+                SEV = "MN(2)_Minor Alarm";
+                break;
+            default:
+                SEV = "SEV_Undefined code";
+                break;
+        }
+        switch (uuid.charAt(7) - '0') {
+            case 0:
+                ALM = "COM_FAIL(0)_TID(RS)";
+                break;
+            case 1:
+                ALM = "ECUR_MAX_TH_OVERRUN(1)_VALUE/TH_VALUE";
+                break;
+            case 2:
+                ALM = "ECUR_MIN_TH_UNDERRUN(2)_VALUE/TH_VALUE";
+                break;
+            default:
+                ALM = "ALM_Undefined code";
+                break;
+        }
+        switch (uuid.charAt(8) - '0') {
+            case 0:
+                STS = "REL(0)_Alarm 해제";
+                break;
+            case 1:
+                STS = "ALM(1)_Alarm 발생";
+                break;
+            default:
+                STS = "STS_Undefined code";
+                break;
+        }
+        txtAID.setText(AID);
+        txtSEV.setText(SEV);
+        txtALM.setText(ALM);
+        txtSTS.setText(STS);
 
-        if(byteArray1[7]==1)
-            txtSEV.setText("CR(0)_Critical Alarm");
-        else if(byteArray1[7]==2)
-            txtSEV.setText("MJ(1)_Major Alarm");
-        else if(byteArray1[7]==3)
-            txtSEV.setText("MN(2)_Minor Alarm");
+        StringBuilder builder = new StringBuilder();
+        builder.append(uuid.substring(9,11)).append("년")
+                .append(uuid.substring(11,13)).append("월")
+                .append(uuid.substring(13,15)).append("일")
+                .append(uuid.substring(15,17)).append("시")
+                .append(uuid.substring(17,19)).append("분")
+                .append(uuid.substring(13,15)).append("초");
 
-        if(byteArray2[0]==1)
-            txtALM.setText("REL(0)_Alarm 해제");
-        else if(byteArray2[0]==2)
-            txtALM.setText("ALM(1)_Alarm 발생");
-
-        if (byteArray2[1]==1)
-            txtSTS.setText("COM_FAIL(0)_TID(RS)");
-        else if(byteArray2[1]==2)
-            txtSTS.setText("ECUR_MAX_TH_OVERRUN(1)_VALUE/TH_VALUE");
-        else if(byteArray2[1]==3)
-            txtSTS.setText("ECUR_MIN_TH_UNDERRUN(2)_VALUE/TH_VALUE");
-
-        txtTIME.setText(""+byteArray2[2]+"년"+byteArray2[3]+"월"+byteArray2[4]+"일"+byteArray2[5]+"시"+byteArray2[6]+"분"+byteArray2[7]+"초");
+        txtTIME.setText(builder.toString());
     }
 
     public static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i+=2) {
-            data[i/2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
+    }
+
+    public static String byteArrayToString(byte[] bytes) {
+        StringBuilder builder = new StringBuilder();
+        if (bytes[1] == 'R')
+            builder.append("RS-");
+        else
+            builder.append("BS-");
+
+        builder.append(bytes[4]).append(bytes[5]).append(bytes[6]).
+                append(bytes[7]).append(bytes[8]).append(bytes[9]);
+
+        for (int i = 10; i < 16; i++)
+            builder.append(byteTo2DigitsString(bytes[i]));
+        return builder.toString();
+    }
+
+    public static String byteTo2DigitsString(byte digit) {
+        if (digit < 10)
+            return "0" + digit;
+        return digit + "";
     }
 
     public void setButtonOnClickListener(View.OnClickListener listener) {
@@ -90,4 +149,6 @@ public class HexToByte extends Dialog {
     public String getSystemID() {
         return txtSystemID.getText().toString();
     }
+
+
 }
