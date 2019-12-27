@@ -17,16 +17,11 @@ public class DB2OthersConnector {
         int i = 0;
 
         if (cursor != null) {
-            markers[i++] = map.addMarker(new MarkerOptions()
-                    .position(new LatLng(cursor.getDouble(1), cursor.getDouble(2)))
-                    .title(cursor.getString(0))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-
             while (cursor.moveToNext()) {
                 markers[i++] = map.addMarker(new MarkerOptions()
                         .position(new LatLng(cursor.getDouble(1), cursor.getDouble(2)))
                         .title(cursor.getString(0))
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
             }
             //cursor.close();
         }
@@ -35,18 +30,23 @@ public class DB2OthersConnector {
 
     public static Boolean isAlreadyExistInDB(String title, Cursor cursor) {
         cursor.moveToFirst();
-        if (cursor != null) {
-            String tmpTitle = cursor.getString(0);
-            Log.d("isAlreadyExistInDB()", tmpTitle);
-            if (tmpTitle.equals(title))
-                return true;
+        String tmpTitle = null;
 
+        try {
+            tmpTitle = new String(HexToByte.hexStringToByteArray(title.substring(0, 6)), "UTF-8") +
+                    title.substring(6);
+            Log.d("isAlreadyExistInDB", tmpTitle);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (cursor != null) {
             while (cursor.moveToNext()) {
                 String tmpTitle2 = cursor.getString(0);
                 Log.d("isAlreadyExistInDB()", tmpTitle2);
-                if (tmpTitle2.equals(title))
+                if (tmpTitle2.equals(tmpTitle))
                     return true;
             }
+            //cursor.close();
         }
         return false;
     }
