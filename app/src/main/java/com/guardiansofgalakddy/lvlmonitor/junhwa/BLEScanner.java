@@ -11,17 +11,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.os.ParcelUuid;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import java.util.Collection;
-import java.util.Iterator;
+import com.guardiansofgalakddy.lvlmonitor.superb.HexToByte;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.UUID;
 
 import static android.content.Context.BLUETOOTH_SERVICE;
 
@@ -41,17 +41,16 @@ public class BLEScanner {
             if (result == null || result.getScanRecord().getServiceUuids() == null)
                 return;
             String uuid = result.getScanRecord().getServiceUuids().get(0).toString();
-            String systemID = uuid.substring(2, 8);
-            Log.d("onScanResult", uuid);
-            if (systemID.equals("52532d") || systemID.equals("42532d")) {//"RS-" or "BS-"
-                Log.d("onScanResult", "OK");
+            String[] split = uuid.split("-");
+            uuid = split[0] + split[1] + split[2] + split[3] + split[4];
+            byte[] bytes = HexToByte.hexStringToByteArray(uuid);
+            uuid = HexToByte.byteArrayToString(bytes);
 
-                Intent intent = new Intent();
-                intent.setAction("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid");
-                intent.putExtra("UUID", uuid);
-                LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
-                broadcastManager.sendBroadcast(intent);
-            }
+            Intent intent = new Intent();
+            intent.setAction("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid");
+            intent.putExtra("UUID", uuid);
+            LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
+            broadcastManager.sendBroadcast(intent);
         }
 
         @Override
@@ -87,132 +86,27 @@ public class BLEScanner {
     }
 
     public void discover() {
-        ScanFilter filter = new ScanFilter.Builder()
-                //.setServiceUuid(new ParcelUuid(UUID.fromString(getString(R.string.ble_uuid))))
+        long id0 = 0x0000000000000000L;
+        long id1 = 0x0052532d00000000L;
+        long id2 = 0x0042532d00000000L;
+        long mask = 0x1111111100000000L;
+        UUID uuid1 = new UUID(id1, id0);
+        UUID uuid2 = new UUID(id2, id0);
+        UUID maskUuid = new UUID(mask, id0);
+        ParcelUuid parcelUuid1 = new ParcelUuid(uuid1);
+        ParcelUuid parcelUuid2 = new ParcelUuid(uuid2);
+        ParcelUuid maskParcelUuid = new ParcelUuid(maskUuid);
+
+        ScanFilter filter1 = new ScanFilter.Builder()
+                .setServiceUuid(parcelUuid1, maskParcelUuid)
                 .build();
-        List<ScanFilter> filters = new List<ScanFilter>() {
-            @Override
-            public int size() {
-                return 0;
-            }
+        ScanFilter filter2 = new ScanFilter.Builder()
+                .setServiceUuid(parcelUuid2, maskParcelUuid)
+                .build();
 
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @Override
-            public boolean contains(@Nullable Object o) {
-                return false;
-            }
-
-            @NonNull
-            @Override
-            public Iterator<ScanFilter> iterator() {
-                return null;
-            }
-
-            @NonNull
-            @Override
-            public Object[] toArray() {
-                return new Object[0];
-            }
-
-            @NonNull
-            @Override
-            public <T> T[] toArray(@NonNull T[] a) {
-                return null;
-            }
-
-            @Override
-            public boolean add(ScanFilter scanFilter) {
-                return false;
-            }
-
-            @Override
-            public boolean remove(@Nullable Object o) {
-                return false;
-            }
-
-            @Override
-            public boolean containsAll(@NonNull Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(@NonNull Collection<? extends ScanFilter> c) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(int index, @NonNull Collection<? extends ScanFilter> c) {
-                return false;
-            }
-
-            @Override
-            public boolean removeAll(@NonNull Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean retainAll(@NonNull Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public void clear() {
-
-            }
-
-            @Override
-            public ScanFilter get(int index) {
-                return null;
-            }
-
-            @Override
-            public ScanFilter set(int index, ScanFilter element) {
-                return null;
-            }
-
-            @Override
-            public void add(int index, ScanFilter element) {
-
-            }
-
-            @Override
-            public ScanFilter remove(int index) {
-                return null;
-            }
-
-            @Override
-            public int indexOf(@Nullable Object o) {
-                return 0;
-            }
-
-            @Override
-            public int lastIndexOf(@Nullable Object o) {
-                return 0;
-            }
-
-            @NonNull
-            @Override
-            public ListIterator<ScanFilter> listIterator() {
-                return null;
-            }
-
-            @NonNull
-            @Override
-            public ListIterator<ScanFilter> listIterator(int index) {
-                return null;
-            }
-
-            @NonNull
-            @Override
-            public List<ScanFilter> subList(int fromIndex, int toIndex) {
-                return null;
-            }
-        };
-        filters.add(filter);
+        List<ScanFilter> filters = new ArrayList<>();
+        filters.add(filter1);
+        filters.add(filter2);
 
         ScanSettings settings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)

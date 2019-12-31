@@ -16,7 +16,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class LVLDBManager {
     static final String LVL_DB = "LVL.db";
     static final String LVL_TABLE = "LVL";
-    static final int DB_VERSION = 1;
+    static final int DB_VERSION = 2;
 
     Context mContext = null;
 
@@ -30,8 +30,7 @@ public class LVLDBManager {
 
         mDatabase.execSQL(
                 "CREATE TABLE IF NOT EXISTS " + LVL_TABLE +
-                        "(_id  INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        "systemid  TEXT," +
+                        "(systemid  TEXT PRIMARY KEY UNIQUE," +
                         "latitude  DOUBLE, " +
                         "longitude DOUBLE); ");
     }
