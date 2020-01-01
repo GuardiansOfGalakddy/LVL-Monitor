@@ -2,4 +2,11 @@
     <string name="app_name">LVL Monitor</string>
     <string name="nav_sub_menu_open_source">Open Source license</string>
     <string name="btn_scan">Start BLE scan</string>
+
+    <color name="main_monitor_pressed_color">#619196</color>
+    <color name="main_monitor_color">#84B4C8</color>
+    <color name="main_collector_pressed_color">#F26666</color>
+    <color name="main_collector_color">#F29544</color>
+    <color name="newColorPrimaryDark">#022E40</color>
+    <color name="newColorPrimary">#011526</color>
 </resources>

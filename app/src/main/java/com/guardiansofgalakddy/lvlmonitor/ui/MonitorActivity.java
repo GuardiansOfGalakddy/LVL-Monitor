@@ -27,6 +27,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListenerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.DB2OthersConnector;
 import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
 import com.guardiansofgalakddy.lvlmonitor.seungju.OnItemClickListener;
@@ -129,7 +130,7 @@ public class MonitorActivity extends AppCompatActivity {
                     hTB.dismiss();
                     data.setResId(R.drawable.ic_done);
                     adapter.notifyDataSetChanged();
-                    gpsListener.showReceiverMarker(hTB.getSystemID(), latLng.latitude, latLng.longitude);
+                    gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
                 }
             });
         } catch (Exception e) {
@@ -157,7 +158,7 @@ public class MonitorActivity extends AppCompatActivity {
                 startLocationService(googleMap);
 
                 cursor = mDbManager.getIdNLatLng();
-                DB2OthersConnector.addMarkersFromDB(googleMap, cursor);
+                gpsListener.addMarkersFromDB(GPSListener.NO_ALARM_ID, cursor);
             }
         });
         try {
@@ -170,10 +171,6 @@ public class MonitorActivity extends AppCompatActivity {
     /* Google Map location information get, location setting */
     private void startLocationService(GoogleMap googleMap) {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        GoogleMap map = googleMap;
-
-        /* set GPSListener map */
-        gpsListener = new GPSListener(map);
 
         try {// Check location authority and location function available
             // False: finish()
@@ -183,11 +180,19 @@ public class MonitorActivity extends AppCompatActivity {
                 finish();
             }
 
+            /* set GPSListener */
+            /* set camera and marker start location */
+            /* It may be inaccurate location but soon find current location*/
+            GPSListenerBuilder builder = GPSListenerBuilder.getInstance();
+            gpsListener = builder
+                    .setMap(googleMap)
+                    .getGpsListener();
+
             /* set camera and marker start location */
             /* It may be inaccurate location but soon find current location*/
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (location != null)
-                gpsListener.showCurrentLocation(location.getLatitude(), location.getLongitude());
+                gpsListener.showLocation(location.getLatitude(), location.getLongitude());
 
             // GPSListener register
             long minTime = 10000;
