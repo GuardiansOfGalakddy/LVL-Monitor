@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
@@ -21,7 +22,10 @@ import com.pedro.library.AutoPermissionsListener;
 
 public class MainActivity extends AppCompatActivity implements AutoPermissionsListener {
     private DrawerLayout drawerLayout;
-    private Button button1, button2;
+    private LinearLayout button1, button2;
+
+    /* Back button check */
+    private long pressedTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
             }
         });
 
-        button1 = findViewById(R.id.button);
+        button1 = findViewById(R.id.btn_monitor);
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -63,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
             }
         });
 
-        button2 = findViewById(R.id.button2);
+        button2 = findViewById(R.id.btn_collector);
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -74,6 +78,16 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 
         /* AutoPermission 권한 요청 */
         AutoPermissions.Companion.loadAllPermissions(this, 101);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(System.currentTimeMillis() > pressedTime + 2000){
+            pressedTime = System.currentTimeMillis();
+            Toast.makeText(getApplicationContext(), "한번 더 누르면 종료됩니다.", Toast.LENGTH_LONG).show();
+        }else{
+            finish();
+        }
     }
 
     @Override
