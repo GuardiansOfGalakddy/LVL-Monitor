@@ -12,41 +12,36 @@ import com.guardiansofgalakddy.lvlmonitor.superb.HexToByte;
 
 public class DB2OthersConnector {
     public static Marker[] addMarkersFromDB(GoogleMap map, Cursor cursor) {
+        if (cursor == null || cursor.getCount() == 0)
+            return null;
+
         cursor.moveToFirst();
         Marker[] markers = new Marker[cursor.getCount()];
         int i = 0;
-
-        if (cursor != null) {
+        while (true) {
             markers[i++] = map.addMarker(new MarkerOptions()
                     .position(new LatLng(cursor.getDouble(1), cursor.getDouble(2)))
                     .title(cursor.getString(0))
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-
-            while (cursor.moveToNext()) {
-                markers[i++] = map.addMarker(new MarkerOptions()
-                        .position(new LatLng(cursor.getDouble(1), cursor.getDouble(2)))
-                        .title(cursor.getString(0))
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-            }
-            //cursor.close();
+            if (!cursor.moveToNext())
+                break;
         }
         return markers;
     }
 
     public static Boolean isAlreadyExistInDB(String title, Cursor cursor) {
+        if (cursor == null || cursor.getCount() == 0)
+            return false;
+
         cursor.moveToFirst();
-        if (cursor != null) {
+        while (true) {
             String tmpTitle = cursor.getString(0);
             Log.d("isAlreadyExistInDB()", tmpTitle);
             if (tmpTitle.equals(title))
                 return true;
 
-            while (cursor.moveToNext()) {
-                String tmpTitle2 = cursor.getString(0);
-                Log.d("isAlreadyExistInDB()", tmpTitle2);
-                if (tmpTitle2.equals(title))
-                    return true;
-            }
+            if (!cursor.moveToNext())
+                break;
         }
         return false;
     }

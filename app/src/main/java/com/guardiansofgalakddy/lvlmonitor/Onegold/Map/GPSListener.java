@@ -170,11 +170,14 @@ public class GPSListener implements LocationListener {
 
     /* show Marker using DB Cursor */
     public void addMarkersFromDB(int markerAlarm, Cursor cursor) {
+        if (cursor == null || cursor.getCount() == 0)
+            return;
+
         cursor.moveToFirst();
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                showMarker(markerAlarm, cursor.getString(0), cursor.getDouble(1), cursor.getDouble(2));
-            }
+        while (true) {
+            showMarker(markerAlarm, cursor.getString(0), cursor.getDouble(1), cursor.getDouble(2));
+            if (!cursor.moveToNext())
+                break;
         }
     }
 
