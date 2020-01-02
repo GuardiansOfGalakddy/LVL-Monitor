@@ -60,8 +60,6 @@ public class MonitorActivity extends AppCompatActivity {
 
     public LVLDBManager mDbManager = null;
 
-    boolean alreadyInDB = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +92,8 @@ public class MonitorActivity extends AppCompatActivity {
             public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
                 Data data = adapter.getData(position);
                 String content = data.getContent();
-                showDialog(content, data);
+                Boolean isInDB = data.getResId() == R.drawable.ic_done ? true : false;
+                showDialog(content, data, isInDB);
             }
         });
         initializeRecyclerView();
@@ -113,13 +112,12 @@ public class MonitorActivity extends AppCompatActivity {
         });
     }
 
-    private void showDialog(String uuid, final Data data) {
+    private void showDialog(String uuid, final Data data, Boolean alreadyInDB) {
         try {
             hTB = new HexToByte(this);
             hTB.initializeHexToByte(uuid);
             hTB.show();
-            if(!alreadyInDB)
-            {
+            if (!alreadyInDB) {
                 //for append in DB
                 hTB.setButtonOnClickListener(new View.OnClickListener() {
                     @Override
@@ -136,12 +134,9 @@ public class MonitorActivity extends AppCompatActivity {
                         data.setResId(R.drawable.ic_done);
                         adapter.notifyDataSetChanged();
                         gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
-                        alreadyInDB = true;
                     }
-                });
-            }
-            else
-            {
+                }, alreadyInDB);
+            } else {
                 //for update latitude and longitude
                 hTB.setButtonOnClickListener(new View.OnClickListener() {
                     @Override
@@ -151,13 +146,13 @@ public class MonitorActivity extends AppCompatActivity {
                         updateRowValue.put("latitude", latLng.latitude);
                         updateRowValue.put("longitude", latLng.longitude);
 
-                        mDbManager.update(updateRowValue, hTB.getSystemID(), null);
+                        mDbManager.update(updateRowValue,
+                                "systemid=\"" + hTB.getSystemID() + "\"", null);
                         Toast.makeText(getApplicationContext(), "업데이트 완료했습니다.", Toast.LENGTH_LONG).show();
                         hTB.dismiss();
                         gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
-                        alreadyInDB = true;
                     }
-                });
+                }, alreadyInDB);
 
                 //for using delete btn
                 hTB.setDeleteButtonOnClickListener(new View.OnClickListener() {
@@ -165,13 +160,12 @@ public class MonitorActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         LatLng latLng = gpsListener.getCurrentLocation();
 
-                        mDbManager.delete(hTB.getSystemID(), null);
+                        mDbManager.delete("systemid=\"" + hTB.getSystemID() + "\"", null);
                         Toast.makeText(getApplicationContext(), "삭제했습니다.", Toast.LENGTH_LONG).show();
                         hTB.dismiss();
                         data.setResId(R.drawable.ic_menu);
                         adapter.notifyDataSetChanged();
                         gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
-                        alreadyInDB = false;
                     }
                 });
             }
