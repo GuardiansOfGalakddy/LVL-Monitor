@@ -60,6 +60,8 @@ public class MonitorActivity extends AppCompatActivity {
 
     public LVLDBManager mDbManager = null;
 
+    boolean alreadyInDB = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,23 +118,63 @@ public class MonitorActivity extends AppCompatActivity {
             hTB = new HexToByte(this);
             hTB.initializeHexToByte(uuid);
             hTB.show();
-            hTB.setButtonOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ContentValues addRowValue = new ContentValues();
-                    LatLng latLng = gpsListener.getCurrentLocation();
+            if(!alreadyInDB)
+            {
+                //for append in DB
+                hTB.setButtonOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ContentValues addRowValue = new ContentValues();
+                        LatLng latLng = gpsListener.getCurrentLocation();
 
-                    addRowValue.put("systemid", hTB.getSystemID());
-                    addRowValue.put("latitude", latLng.latitude);
-                    addRowValue.put("longitude", latLng.longitude);
-                    mDbManager.insert(addRowValue);
-                    Toast.makeText(getApplicationContext(), "정상적으로 입력되었습니다.", Toast.LENGTH_LONG).show();
-                    hTB.dismiss();
-                    data.setResId(R.drawable.ic_done);
-                    adapter.notifyDataSetChanged();
-                    gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
-                }
-            });
+                        addRowValue.put("systemid", hTB.getSystemID());
+                        addRowValue.put("latitude", latLng.latitude);
+                        addRowValue.put("longitude", latLng.longitude);
+                        mDbManager.insert(addRowValue);
+                        Toast.makeText(getApplicationContext(), "정상적으로 입력되었습니다.", Toast.LENGTH_LONG).show();
+                        hTB.dismiss();
+                        data.setResId(R.drawable.ic_done);
+                        adapter.notifyDataSetChanged();
+                        gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
+                        alreadyInDB = true;
+                    }
+                });
+            }
+            else
+            {
+                //for update latitude and longitude
+                hTB.setButtonOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ContentValues updateRowValue = new ContentValues();
+                        LatLng latLng = gpsListener.getCurrentLocation();
+                        updateRowValue.put("latitude", latLng.latitude);
+                        updateRowValue.put("longitude", latLng.longitude);
+
+                        mDbManager.update(updateRowValue, hTB.getSystemID(), null);
+                        Toast.makeText(getApplicationContext(), "업데이트 완료했습니다.", Toast.LENGTH_LONG).show();
+                        hTB.dismiss();
+                        gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
+                        alreadyInDB = true;
+                    }
+                });
+
+                //for using delete btn
+                hTB.setDeleteButtonOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        LatLng latLng = gpsListener.getCurrentLocation();
+
+                        mDbManager.delete(hTB.getSystemID(), null);
+                        Toast.makeText(getApplicationContext(), "삭제했습니다.", Toast.LENGTH_LONG).show();
+                        hTB.dismiss();
+                        data.setResId(R.drawable.ic_menu);
+                        adapter.notifyDataSetChanged();
+                        gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
+                        alreadyInDB = false;
+                    }
+                });
+            }
         } catch (Exception e) {
             Log.e("showDialog", e.toString());
         }
