@@ -15,6 +15,7 @@ public class HexToByte extends Dialog {
     String uuid = null;
 
     private Button button;
+    private Button deleteBtn;
     private TextView txtSystemID, txtAID, txtSEV, txtALM, txtSTS, txtTIME = null;
 
     public HexToByte(@NonNull Context context) {
@@ -22,6 +23,7 @@ public class HexToByte extends Dialog {
         setContentView(R.layout.dialog_uuid);
 
         button = findViewById(R.id.button3);
+        deleteBtn = findViewById(R.id.button4);
     }
 
     public void initializeHexToByte(String uuid) {
@@ -144,6 +146,14 @@ public class HexToByte extends Dialog {
 
     public void setButtonOnClickListener(View.OnClickListener listener) {
         this.button.setOnClickListener(listener);
+        button.setText("Update");
+        deleteBtn.setVisibility(View.VISIBLE);
+    }
+
+    public void setDeleteButtonOnClickListener(View.OnClickListener listener) {
+        this.deleteBtn.setOnClickListener(listener);
+        button.setText("Append");
+        deleteBtn.setVisibility(View.GONE);
     }
 
     public String getSystemID() {
