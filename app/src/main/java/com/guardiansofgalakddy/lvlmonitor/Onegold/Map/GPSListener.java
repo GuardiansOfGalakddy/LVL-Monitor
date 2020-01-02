@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -189,6 +190,12 @@ public class GPSListener implements LocationListener {
             marker.setPosition(curPoint);
             marker.setIcon(BitmapDescriptorFactory.defaultMarker(selectMarkerColor(markerAlarm, id)));
         }
+    }
+
+    public void updateMarkerColor(int markerAlarm, String id) {
+        Marker marker = otherLocationMarkers.get(id);
+        if (marker != null)
+            marker.setIcon(BitmapDescriptorFactory.defaultMarker(selectMarkerColor(markerAlarm, id)));
     }
 
     /* remove Marker by id */

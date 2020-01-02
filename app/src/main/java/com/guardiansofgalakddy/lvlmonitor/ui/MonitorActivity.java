@@ -75,15 +75,16 @@ public class MonitorActivity extends AppCompatActivity {
                     return;
                 String uuid = intent.getStringExtra("UUID");
                 Log.d("onReceive", uuid);
+                String systemId = uuid.substring(0, 5);
 
-                adapter.addItem(new Data(uuid.substring(0, 5), uuid, R.drawable.ic_menu), cursor);
+                adapter.addItem(new Data(systemId, uuid, R.drawable.ic_menu), cursor, gpsListener);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
                 registerReceiver(receiver, new IntentFilter("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid"));
 
         scanner = new BLEScanner();
-        if (scanner.initialize(this) == false)
+        if (!scanner.initialize(this))
             finish();
 
         adapter = new RecyclerAdapter();
@@ -92,7 +93,7 @@ public class MonitorActivity extends AppCompatActivity {
             public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
                 Data data = adapter.getData(position);
                 String content = data.getContent();
-                Boolean isInDB = data.getResId() == R.drawable.ic_done ? true : false;
+                Boolean isInDB = data.getResId() == R.drawable.ic_done;
                 showDialog(content, data, isInDB);
             }
         });
@@ -102,6 +103,8 @@ public class MonitorActivity extends AppCompatActivity {
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                adapter.clearData();
+                cursor = mDbManager.getIdNLatLng();
                 new Thread(new Runnable() {
                     @Override
                     public void run() {

@@ -3,6 +3,7 @@ package com.guardiansofgalakddy.lvlmonitor.ui;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -32,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = findViewById(R.id.toolbar2);
+        setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         actionBar.setDisplayHomeAsUpEnabled(true);
