@@ -168,7 +168,7 @@ public class MonitorActivity extends AppCompatActivity {
                         hTB.dismiss();
                         data.setResId(R.drawable.ic_menu);
                         adapter.notifyDataSetChanged();
-                        gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
+                        gpsListener.removeMark(hTB.getSystemID());
                     }
                 });
             }
