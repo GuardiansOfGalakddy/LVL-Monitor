@@ -75,15 +75,16 @@ public class MonitorActivity extends AppCompatActivity {
                     return;
                 String uuid = intent.getStringExtra("UUID");
                 Log.d("onReceive", uuid);
+                String systemId = uuid.substring(0, 5);
 
-                adapter.addItem(new Data(uuid.substring(0, 5), uuid, R.drawable.ic_menu), cursor);
+                adapter.addItem(new Data(systemId, uuid, R.drawable.ic_menu), cursor, gpsListener);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
                 registerReceiver(receiver, new IntentFilter("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid"));
 
         scanner = new BLEScanner();
-        if (scanner.initialize(this) == false)
+        if (!scanner.initialize(this))
             finish();
 
         adapter = new RecyclerAdapter();
@@ -92,7 +93,8 @@ public class MonitorActivity extends AppCompatActivity {
             public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
                 Data data = adapter.getData(position);
                 String content = data.getContent();
-                showDialog(content, data);
+                Boolean isInDB = data.getResId() == R.drawable.ic_done;
+                showDialog(content, data, isInDB);
             }
         });
         initializeRecyclerView();
@@ -101,6 +103,8 @@ public class MonitorActivity extends AppCompatActivity {
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                adapter.clearData();
+                cursor = mDbManager.getIdNLatLng();
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -111,28 +115,63 @@ public class MonitorActivity extends AppCompatActivity {
         });
     }
 
-    private void showDialog(String uuid, final Data data) {
+    private void showDialog(String uuid, final Data data, Boolean alreadyInDB) {
         try {
             hTB = new HexToByte(this);
             hTB.initializeHexToByte(uuid);
             hTB.show();
-            hTB.setButtonOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ContentValues addRowValue = new ContentValues();
-                    LatLng latLng = gpsListener.getCurrentLocation();
+            if (!alreadyInDB) {
+                //for append in DB
+                hTB.setButtonOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ContentValues addRowValue = new ContentValues();
+                        LatLng latLng = gpsListener.getCurrentLocation();
 
-                    addRowValue.put("systemid", hTB.getSystemID());
-                    addRowValue.put("latitude", latLng.latitude);
-                    addRowValue.put("longitude", latLng.longitude);
-                    mDbManager.insert(addRowValue);
-                    Toast.makeText(getApplicationContext(), "정상적으로 입력되었습니다.", Toast.LENGTH_LONG).show();
-                    hTB.dismiss();
-                    data.setResId(R.drawable.ic_done);
-                    adapter.notifyDataSetChanged();
-                    gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
-                }
-            });
+                        addRowValue.put("systemid", hTB.getSystemID());
+                        addRowValue.put("latitude", latLng.latitude);
+                        addRowValue.put("longitude", latLng.longitude);
+                        mDbManager.insert(addRowValue);
+                        Toast.makeText(getApplicationContext(), "정상적으로 입력되었습니다.", Toast.LENGTH_LONG).show();
+                        hTB.dismiss();
+                        data.setResId(R.drawable.ic_done);
+                        adapter.notifyDataSetChanged();
+                        gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
+                    }
+                }, alreadyInDB);
+            } else {
+                //for update latitude and longitude
+                hTB.setButtonOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ContentValues updateRowValue = new ContentValues();
+                        LatLng latLng = gpsListener.getCurrentLocation();
+                        updateRowValue.put("latitude", latLng.latitude);
+                        updateRowValue.put("longitude", latLng.longitude);
+
+                        mDbManager.update(updateRowValue,
+                                "systemid=\"" + hTB.getSystemID() + "\"", null);
+                        Toast.makeText(getApplicationContext(), "업데이트 완료했습니다.", Toast.LENGTH_LONG).show();
+                        hTB.dismiss();
+                        gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
+                    }
+                }, alreadyInDB);
+
+                //for using delete btn
+                hTB.setDeleteButtonOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        LatLng latLng = gpsListener.getCurrentLocation();
+
+                        mDbManager.delete("systemid=\"" + hTB.getSystemID() + "\"", null);
+                        Toast.makeText(getApplicationContext(), "삭제했습니다.", Toast.LENGTH_LONG).show();
+                        hTB.dismiss();
+                        data.setResId(R.drawable.ic_menu);
+                        adapter.notifyDataSetChanged();
+                        gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
+                    }
+                });
+            }
         } catch (Exception e) {
             Log.e("showDialog", e.toString());
         }

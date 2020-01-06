@@ -15,6 +15,7 @@ public class HexToByte extends Dialog {
     String uuid = null;
 
     private Button button;
+    private Button deleteBtn;
     private TextView txtSystemID, txtAID, txtSEV, txtALM, txtSTS, txtTIME = null;
 
     public HexToByte(@NonNull Context context) {
@@ -22,6 +23,7 @@ public class HexToByte extends Dialog {
         setContentView(R.layout.dialog_uuid);
 
         button = findViewById(R.id.button3);
+        deleteBtn = findViewById(R.id.button4);
     }
 
     public void initializeHexToByte(String uuid) {
@@ -102,12 +104,12 @@ public class HexToByte extends Dialog {
         txtSTS.setText(STS);
 
         StringBuilder builder = new StringBuilder();
-        builder.append(uuid.substring(9,11)).append("년")
-                .append(uuid.substring(11,13)).append("월")
-                .append(uuid.substring(13,15)).append("일")
-                .append(uuid.substring(15,17)).append("시")
-                .append(uuid.substring(17,19)).append("분")
-                .append(uuid.substring(13,15)).append("초");
+        builder.append(uuid.substring(9, 11)).append("년")
+                .append(uuid.substring(11, 13)).append("월")
+                .append(uuid.substring(13, 15)).append("일")
+                .append(uuid.substring(15, 17)).append("시")
+                .append(uuid.substring(17, 19)).append("분")
+                .append(uuid.substring(13, 15)).append("초");
 
         txtTIME.setText(builder.toString());
     }
@@ -142,8 +144,15 @@ public class HexToByte extends Dialog {
         return digit + "";
     }
 
-    public void setButtonOnClickListener(View.OnClickListener listener) {
+    public void setButtonOnClickListener(View.OnClickListener listener, Boolean bool) {
         this.button.setOnClickListener(listener);
+        if (bool)
+            button.setText("Update");
+    }
+
+    public void setDeleteButtonOnClickListener(View.OnClickListener listener) {
+        this.deleteBtn.setOnClickListener(listener);
+        deleteBtn.setVisibility(View.VISIBLE);
     }
 
     public String getSystemID() {
