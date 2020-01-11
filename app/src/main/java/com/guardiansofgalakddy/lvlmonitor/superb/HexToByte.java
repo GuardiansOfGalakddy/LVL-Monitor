@@ -90,6 +90,10 @@ public class HexToByte extends Dialog {
         switch (uuid.charAt(8) - '0') {
             case 0:
                 STS = "REL(0)_Alarm 해제";
+                txtSEV.setVisibility(View.GONE);
+                txtAID.setVisibility(View.GONE);
+                txtALM.setVisibility(View.GONE);
+                txtTIME.setVisibility(View.GONE);
                 break;
             case 1:
                 STS = "ALM(1)_Alarm 발생";
