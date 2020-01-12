@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListener;
+import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListenerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.R;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.DB2OthersConnector;
 
@@ -40,17 +42,19 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
         return listData.size();
     }
 
-    public void addItem(Data data, Cursor cursor) {
-        if(isAlreadyExist(data))
+    public void addItem(Data data, Cursor cursor, GPSListener listener) {
+        if (isAlreadyExist(data))
             return;
         // 외부에서 item을 추가시킬 함수입니다.
-        if (DB2OthersConnector.isAlreadyExistInDB(data.getTitle(), cursor))
+        if (DB2OthersConnector.isAlreadyExistInDB(data.getTitle(), cursor)) {
             data.setResId(R.drawable.ic_done);
+            listener.updateMarkerColor(data.getContent().charAt(8) - '0', data.getTitle());
+        }
         listData.add(data);
         this.notifyDataSetChanged();
     }
 
-    public Boolean isAlreadyExist(Data data) {
+    private Boolean isAlreadyExist(Data data) {
         for (Data d : listData)
             if (d.getTitle().equals(data.getTitle()))
                 return true;
@@ -100,5 +104,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
     public void onItemClick(ItemViewHolder holder, View view, int position) {
         if (listener != null)
             listener.onItemClick(holder, view, position);
+    }
+
+    public void clearData() {
+        this.listData.clear();
+        this.notifyDataSetChanged();
     }
 }

@@ -90,6 +90,10 @@ public class HexToByte extends Dialog {
         switch (uuid.charAt(8) - '0') {
             case 0:
                 STS = "REL(0)_Alarm 해제";
+                txtSEV.setVisibility(View.GONE);
+                txtAID.setVisibility(View.GONE);
+                txtALM.setVisibility(View.GONE);
+                txtTIME.setVisibility(View.GONE);
                 break;
             case 1:
                 STS = "ALM(1)_Alarm 발생";
@@ -104,12 +108,12 @@ public class HexToByte extends Dialog {
         txtSTS.setText(STS);
 
         StringBuilder builder = new StringBuilder();
-        builder.append(uuid.substring(9,11)).append("년")
-                .append(uuid.substring(11,13)).append("월")
-                .append(uuid.substring(13,15)).append("일")
-                .append(uuid.substring(15,17)).append("시")
-                .append(uuid.substring(17,19)).append("분")
-                .append(uuid.substring(13,15)).append("초");
+        builder.append(uuid.substring(9, 11)).append("년")
+                .append(uuid.substring(11, 13)).append("월")
+                .append(uuid.substring(13, 15)).append("일")
+                .append(uuid.substring(15, 17)).append("시")
+                .append(uuid.substring(17, 19)).append("분")
+                .append(uuid.substring(13, 15)).append("초");
 
         txtTIME.setText(builder.toString());
     }
@@ -144,16 +148,15 @@ public class HexToByte extends Dialog {
         return digit + "";
     }
 
-    public void setButtonOnClickListener(View.OnClickListener listener) {
+    public void setButtonOnClickListener(View.OnClickListener listener, Boolean bool) {
         this.button.setOnClickListener(listener);
-        button.setText("Update");
-        deleteBtn.setVisibility(View.VISIBLE);
+        if (bool)
+            button.setText("Update");
     }
 
     public void setDeleteButtonOnClickListener(View.OnClickListener listener) {
         this.deleteBtn.setOnClickListener(listener);
-        button.setText("Append");
-        deleteBtn.setVisibility(View.GONE);
+        deleteBtn.setVisibility(View.VISIBLE);
     }
 
     public String getSystemID() {
