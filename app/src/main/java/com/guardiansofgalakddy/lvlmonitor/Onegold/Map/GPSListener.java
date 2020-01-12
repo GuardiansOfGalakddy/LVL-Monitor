@@ -28,7 +28,6 @@ public class GPSListener implements LocationListener {
 
     private static final float MY_MARKER_COLOR = BitmapDescriptorFactory.HUE_VIOLET;
     private static final float MONITOR_ALARM_MARKER_COLOR = BitmapDescriptorFactory.HUE_RED;
-    private static final float COLLECTOR_ALARM_MARKER_COLOR = BitmapDescriptorFactory.HUE_BLUE;
     private static final float MONITOR_MARKER_COLOR = BitmapDescriptorFactory.HUE_ORANGE;
     private static final float COLLECTOR_MARKER_COLOR = BitmapDescriptorFactory.HUE_CYAN;
 
@@ -159,10 +158,7 @@ public class GPSListener implements LocationListener {
                     return MONITOR_MARKER_COLOR;
             }
             case COLLECTOR_MARKER_ID: {
-                if (markerAlarm == ALARM_ID)
-                    return COLLECTOR_ALARM_MARKER_COLOR;
-                else
-                    return COLLECTOR_MARKER_COLOR;
+                return COLLECTOR_MARKER_COLOR;
             }
             default:
                 return 0;
