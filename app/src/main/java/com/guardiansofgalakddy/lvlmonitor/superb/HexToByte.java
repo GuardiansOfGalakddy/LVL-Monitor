@@ -40,6 +40,12 @@ public class HexToByte extends Dialog {
 
     public void showData() {
         txtSystemID.setText(uuid.substring(0, 5));
+        if (uuid.substring(0, 2).equals("BS")) {
+            txtSEV.setVisibility(View.GONE);
+            txtAID.setVisibility(View.GONE);
+            txtALM.setVisibility(View.GONE);
+            txtSTS.setVisibility(View.GONE);
+        }
 
         String AID, SEV, ALM, STS = null;
         switch (uuid.charAt(5) - '0') {
@@ -90,6 +96,10 @@ public class HexToByte extends Dialog {
         switch (uuid.charAt(8) - '0') {
             case 0:
                 STS = "REL(0)_Alarm 해제";
+                txtSEV.setVisibility(View.GONE);
+                txtAID.setVisibility(View.GONE);
+                txtALM.setVisibility(View.GONE);
+                //txtTIME.setVisibility(View.GONE);
                 break;
             case 1:
                 STS = "ALM(1)_Alarm 발생";
