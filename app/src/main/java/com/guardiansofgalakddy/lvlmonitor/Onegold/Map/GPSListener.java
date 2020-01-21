@@ -1,9 +1,12 @@
 package com.guardiansofgalakddy.lvlmonitor.Onegold.Map;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -12,13 +15,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.guardiansofgalakddy.lvlmonitor.ui.MonitorActivity;
 
 import java.util.HashMap;
 
 /* GPS Listener */
 /* Creating GPSListener only GPSListenerBuilder */
 /* getInstance() of GPSListener is using GPSListener */
-public class GPSListener implements LocationListener {
+public class GPSListener implements LocationListener
+        , GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerClickListener {
     public static final int NO_ALARM_ID = 0;
     public static final int ALARM_ID = 1;
     private final String MONITOR_MARKER_ID = "RS";
@@ -30,12 +35,16 @@ public class GPSListener implements LocationListener {
     private static final float MONITOR_ALARM_MARKER_COLOR = BitmapDescriptorFactory.HUE_RED;
     private static final float MONITOR_MARKER_COLOR = BitmapDescriptorFactory.HUE_ORANGE;
     private static final float COLLECTOR_MARKER_COLOR = BitmapDescriptorFactory.HUE_CYAN;
+    private static final float TEMPORARY_MARKER_COLOR = BitmapDescriptorFactory.HUE_GREEN;
 
     private GoogleMap map;
     private Location currentLocation;
     private Marker myLocationMarker;
     private HashMap<String, Marker> otherLocationMarkers = new HashMap<>();
+    private Marker tempMarker = null;
     private boolean isOnStartMap;
+
+    private Context context;
 
     private GPSListener() {
 
@@ -203,6 +212,37 @@ public class GPSListener implements LocationListener {
         }
     }
 
+    @Override
+    public void onMapClick(LatLng latLng) {
+        /* If tempMarker already exist, remove tempMarker */
+        if(tempMarker != null){
+            tempMarker.remove();
+            tempMarker = null;
+        }
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        /* If tempMarker already exist, remove tempMarker */
+        if(tempMarker != null){
+            tempMarker.remove();
+            tempMarker = null;
+        }
+        /* Save new marker */
+        tempMarker = map.addMarker(new MarkerOptions()
+                .position(latLng)
+                .icon(BitmapDescriptorFactory.defaultMarker(TEMPORARY_MARKER_COLOR)));
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        if(marker.equals(tempMarker)){
+            LatLng latLng = marker.getPosition();
+            Toast.makeText(context, "위도: " + latLng.latitude + "\n경도: " + latLng.longitude, Toast.LENGTH_LONG).show();
+        }
+        return false;
+    }
+
     /* get current location*/
     public LatLng getCurrentLocation() {
         Double latitude = currentLocation.getLatitude();
@@ -221,9 +261,17 @@ public class GPSListener implements LocationListener {
         this.map = map;
         /* show my location button on map */
         map.setMyLocationEnabled(true);
+        /* Add ClickLister on map */
+        map.setOnMapClickListener(this);
+        map.setOnMapLongClickListener(this);
+        map.setOnMarkerClickListener(this);
     }
 
+    void setContext(Context context){
+        this.context = context;
+    }
     void setInit() {
+        this.context = null;
         this.isOnStartMap = true;
         this.map = null;
         this.otherLocationMarkers.clear();
