@@ -1,5 +1,7 @@
 package com.guardiansofgalakddy.lvlmonitor.Onegold.Map;
 
+import android.content.Context;
+
 import com.google.android.gms.maps.GoogleMap;
 
 public class GPSListenerBuilder {
@@ -26,6 +28,10 @@ public class GPSListenerBuilder {
 
     public GPSListenerBuilder setMap(GoogleMap map) {
         gpsListener.setMap(map);
+        return this;
+    }
+    public GPSListenerBuilder setContext(Context context){
+        gpsListener.setContext(context);
         return this;
     }
 }
