@@ -75,7 +75,7 @@ public class MonitorActivity extends AppCompatActivity {
                     return;
                 String uuid = intent.getStringExtra("UUID");
                 Log.d("onReceive", uuid);
-                String systemId = uuid.substring(0, 5);
+                String systemId = uuid.substring(0, 7);
 
                 adapter.addItem(new Data(systemId, uuid, R.drawable.ic_menu), cursor, gpsListener);
             }

@@ -39,7 +39,7 @@ public class HexToByte extends Dialog {
     }
 
     public void showData() {
-        txtSystemID.setText(uuid.substring(0, 5));
+        txtSystemID.setText(uuid.substring(0, 7));
         if (uuid.substring(0, 2).equals("BS")) {
             txtSEV.setVisibility(View.GONE);
             txtAID.setVisibility(View.GONE);
@@ -48,7 +48,7 @@ public class HexToByte extends Dialog {
         }
 
         String AID, SEV, ALM, STS = null;
-        switch (uuid.charAt(5) - '0') {
+        switch (uuid.charAt(7) - '0') {
             case 0:
                 AID = "CH1(0)_Rogowski coil channel 1";
                 break;
@@ -65,7 +65,7 @@ public class HexToByte extends Dialog {
                 AID = "AID_Undefined code";
                 break;
         }
-        switch (uuid.charAt(6) - '0') {
+        switch (uuid.charAt(8) - '0') {
             case 0:
                 SEV = "CR(0)_Critical Alarm";
                 break;
@@ -79,7 +79,7 @@ public class HexToByte extends Dialog {
                 SEV = "SEV_Undefined code";
                 break;
         }
-        switch (uuid.charAt(7) - '0') {
+        switch (uuid.charAt(9) - '0') {
             case 0:
                 ALM = "COM_FAIL(0)_TID(RS)";
                 break;
@@ -93,7 +93,7 @@ public class HexToByte extends Dialog {
                 ALM = "ALM_Undefined code";
                 break;
         }
-        switch (uuid.charAt(8) - '0') {
+        switch (uuid.charAt(10) - '0') {
             case 0:
                 STS = "REL(0)_Alarm 해제";
                 txtSEV.setVisibility(View.GONE);
@@ -114,12 +114,12 @@ public class HexToByte extends Dialog {
         txtSTS.setText(STS);
 
         StringBuilder builder = new StringBuilder();
-        builder.append(uuid.substring(9, 11)).append("년")
-                .append(uuid.substring(11, 13)).append("월")
-                .append(uuid.substring(13, 15)).append("일")
-                .append(uuid.substring(15, 17)).append("시")
-                .append(uuid.substring(17, 19)).append("분")
-                .append(uuid.substring(13, 15)).append("초");
+        builder.append(uuid.substring(11, 13)).append("년")
+                .append(uuid.substring(13, 15)).append("월")
+                .append(uuid.substring(15, 17)).append("일")
+                .append(uuid.substring(17, 19)).append("시")
+                .append(uuid.substring(19, 21)).append("분")
+                .append(uuid.substring(21)).append("초");
 
         txtTIME.setText(builder.toString());
     }
@@ -140,8 +140,14 @@ public class HexToByte extends Dialog {
         else
             builder.append("BS-");
 
-        builder.append(bytes[4]).append(bytes[5]).append(bytes[6]).
-                append(bytes[7]).append(bytes[8]).append(bytes[9]);
+        if (bytes[4] < 10)
+            builder.append(String.format("%02X", bytes[4]&0xff));
+
+        if (bytes[5] < 10)
+            builder.append(String.format("%02X", bytes[5]&0xff));
+
+        builder.append(bytes[6]).append(bytes[7])
+                .append(bytes[8]).append(bytes[9]);
 
         for (int i = 10; i < 16; i++)
             builder.append(byteTo2DigitsString(bytes[i]));

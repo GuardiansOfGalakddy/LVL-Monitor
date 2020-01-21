@@ -48,7 +48,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
         // 외부에서 item을 추가시킬 함수입니다.
         if (DB2OthersConnector.isAlreadyExistInDB(data.getTitle(), cursor)) {
             data.setResId(R.drawable.ic_done);
-            listener.updateMarkerColor(data.getContent().charAt(8) - '0', data.getTitle());
+            listener.updateMarkerColor(data.getContent().charAt(10) - '0', data.getTitle());
         }
         listData.add(data);
         this.notifyDataSetChanged();
