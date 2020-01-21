@@ -225,6 +225,7 @@ public class MonitorActivity extends AppCompatActivity {
             GPSListenerBuilder builder = GPSListenerBuilder.getInstance();
             gpsListener = builder
                     .setMap(googleMap)
+                    .setContext(this)
                     .getGpsListener();
 
             /* set camera and marker start location */
