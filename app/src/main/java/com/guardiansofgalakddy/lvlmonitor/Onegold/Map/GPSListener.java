@@ -1,11 +1,13 @@
 package com.guardiansofgalakddy.lvlmonitor.Onegold.Map;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -15,6 +17,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.guardiansofgalakddy.lvlmonitor.R;
+import com.guardiansofgalakddy.lvlmonitor.junhwa.DB2OthersConnector;
+import com.guardiansofgalakddy.lvlmonitor.seungju.LVLDBManager;
+import com.guardiansofgalakddy.lvlmonitor.superb.MarkerDialog;
 import com.guardiansofgalakddy.lvlmonitor.ui.MonitorActivity;
 
 import java.util.HashMap;
@@ -45,6 +51,10 @@ public class GPSListener implements LocationListener
     private boolean isOnStartMap;
 
     private Context context;
+
+    MarkerDialog md = null;
+
+    public LVLDBManager mDbManager = null;
 
     private GPSListener() {
 
@@ -237,12 +247,81 @@ public class GPSListener implements LocationListener
     @Override
     public boolean onMarkerClick(Marker marker) {
         if(marker.equals(tempMarker)){
-            LatLng latLng = marker.getPosition();
+            final LatLng latLng = marker.getPosition();
+            Log.d("abcde", "Ffff");
+            showMarkerDialog(marker);
+            /*Boolean isInDB = DB2OthersConnector.isAlreadyExistInDB(md.getSystemID(), LVLDBManager.getInstance(context).getIdNLatLng());
+            Log.d("abcde", "" + isInDB);
+            if (isInDB)
+                Toast.makeText(context, "이미 존재합니다", Toast.LENGTH_SHORT).show();
+            else
+                showMarkerDialog(isInDB);*/
+            /*try {
+                md = new MarkerDialog(context);
+                md.show();
+                md.setSaveButtonOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Log.d("abcde", "여기까지!");
+                        ContentValues addRowValue = new ContentValues();
+                        Boolean isInDB = DB2OthersConnector.isAlreadyExistInDB(md.getSystemID(), LVLDBManager.getInstance(context).getIdNLatLng());
+                        if(isInDB) {
+                            Log.d("abcde", "존재하는 것임");
+                            Toast.makeText(context,"이미 존재하는 것입니다.", Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            Log.d("abcde", "이번엔 여기까지 ㅇㅇ");
+                            addRowValue.put("systemid", md.getSystemID());
+                            addRowValue.put("latitude", latLng.latitude);
+                            addRowValue.put("longitude", latLng.longitude);
+                            mDbManager.insert(addRowValue);
+                            Toast.makeText(context, "정상적으로 입력되었습니다.", Toast.LENGTH_LONG).show();
+                            md.dismiss();
+                            showMarker(GPSListener.ALARM_ID, md.getSystemID(), latLng.latitude, latLng.longitude);
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("showDialog", e.toString());
+            }*/
+
+            //Dialog에서 입력된 것을 여기다가 넣으셈 ㅇㅇ 이런식으로 하면 이미 있는지 검사할 수 있을것
             Toast.makeText(context, "위도: " + latLng.latitude + "\n경도: " + latLng.longitude, Toast.LENGTH_LONG).show();
         }
         return false;
     }
 
+    public void showMarkerDialog(final Marker marker) {
+        try {
+            md = new MarkerDialog(context);
+            md.show();
+            md.setSaveButtonOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.d("abcde", "여기까지!");
+                    ContentValues addRowValue = new ContentValues();
+                    Boolean isInDB = DB2OthersConnector.isAlreadyExistInDB(md.getSystemID(), LVLDBManager.getInstance(context).getIdNLatLng());
+                    if(isInDB) {
+                        Log.d("abcde", "존재하는 것임");
+                        Toast.makeText(context,"이미 존재하는 것입니다.", Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        LatLng latLng = marker.getPosition();
+                        Log.d("abcde", "이번엔 여기까지 ㅇㅇ");
+                        addRowValue.put("systemid", md.getSystemID());
+                        addRowValue.put("latitude", latLng.latitude);
+                        addRowValue.put("longitude", latLng.longitude);
+                        mDbManager.insert(addRowValue);
+                        Toast.makeText(context, "정상적으로 입력되었습니다.", Toast.LENGTH_LONG).show();
+                        md.dismiss();
+                        showMarker(GPSListener.ALARM_ID, md.getSystemID(), latLng.latitude, latLng.longitude);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Log.e("showDialog", e.toString());
+        }
+    }
     /* get current location*/
     public LatLng getCurrentLocation() {
         Double latitude = currentLocation.getLatitude();
@@ -269,12 +348,14 @@ public class GPSListener implements LocationListener
 
     void setContext(Context context){
         this.context = context;
+        mDbManager = LVLDBManager.getInstance(context);
     }
     void setInit() {
         this.context = null;
         this.isOnStartMap = true;
         this.map = null;
         this.otherLocationMarkers.clear();
+
     }
 
     @Override
