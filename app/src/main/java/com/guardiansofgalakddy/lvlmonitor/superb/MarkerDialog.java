@@ -73,15 +73,14 @@ public class MarkerDialog extends Dialog {
         this.saveBtn.setOnClickListener(listener);
     }
 
-
     public String getSystemID() {
         String hex1 = Integer.toHexString(picker2.getValue()).toUpperCase();
         String hex2 = Integer.toHexString(picker3.getValue()).toUpperCase();
         String hex3 = Integer.toHexString(picker4.getValue()).toUpperCase();
         String hex4 = Integer.toHexString(picker5.getValue()).toUpperCase();
         if (picker1.getValue()==0) {
-            return "BS-" + hex1 + hex2 + hex3 + hex4;
+            return "RS-" + hex1 + hex2 + hex3 + hex4;
         }
-        else return "RS-" + hex1 + hex2 + hex3 + hex4;
+        else return "BS-" + hex1 + hex2 + hex3 + hex4;
     }
 }

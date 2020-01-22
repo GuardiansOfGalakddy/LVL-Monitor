@@ -247,46 +247,7 @@ public class GPSListener implements LocationListener
     @Override
     public boolean onMarkerClick(Marker marker) {
         if(marker.equals(tempMarker)){
-            final LatLng latLng = marker.getPosition();
-            Log.d("abcde", "Ffff");
             showMarkerDialog(marker);
-            /*Boolean isInDB = DB2OthersConnector.isAlreadyExistInDB(md.getSystemID(), LVLDBManager.getInstance(context).getIdNLatLng());
-            Log.d("abcde", "" + isInDB);
-            if (isInDB)
-                Toast.makeText(context, "이미 존재합니다", Toast.LENGTH_SHORT).show();
-            else
-                showMarkerDialog(isInDB);*/
-            /*try {
-                md = new MarkerDialog(context);
-                md.show();
-                md.setSaveButtonOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Log.d("abcde", "여기까지!");
-                        ContentValues addRowValue = new ContentValues();
-                        Boolean isInDB = DB2OthersConnector.isAlreadyExistInDB(md.getSystemID(), LVLDBManager.getInstance(context).getIdNLatLng());
-                        if(isInDB) {
-                            Log.d("abcde", "존재하는 것임");
-                            Toast.makeText(context,"이미 존재하는 것입니다.", Toast.LENGTH_LONG).show();
-                        }
-                        else {
-                            Log.d("abcde", "이번엔 여기까지 ㅇㅇ");
-                            addRowValue.put("systemid", md.getSystemID());
-                            addRowValue.put("latitude", latLng.latitude);
-                            addRowValue.put("longitude", latLng.longitude);
-                            mDbManager.insert(addRowValue);
-                            Toast.makeText(context, "정상적으로 입력되었습니다.", Toast.LENGTH_LONG).show();
-                            md.dismiss();
-                            showMarker(GPSListener.ALARM_ID, md.getSystemID(), latLng.latitude, latLng.longitude);
-                        }
-                    }
-                });
-            } catch (Exception e) {
-                Log.e("showDialog", e.toString());
-            }*/
-
-            //Dialog에서 입력된 것을 여기다가 넣으셈 ㅇㅇ 이런식으로 하면 이미 있는지 검사할 수 있을것
-            Toast.makeText(context, "위도: " + latLng.latitude + "\n경도: " + latLng.longitude, Toast.LENGTH_LONG).show();
         }
         return false;
     }
@@ -298,16 +259,13 @@ public class GPSListener implements LocationListener
             md.setSaveButtonOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d("abcde", "여기까지!");
                     ContentValues addRowValue = new ContentValues();
-                    Boolean isInDB = DB2OthersConnector.isAlreadyExistInDB(md.getSystemID(), LVLDBManager.getInstance(context).getIdNLatLng());
+                    Boolean isInDB = DB2OthersConnector.isAlreadyExistInDB(md.getSystemID(), mDbManager.getIdNLatLng());
                     if(isInDB) {
-                        Log.d("abcde", "존재하는 것임");
                         Toast.makeText(context,"이미 존재하는 것입니다.", Toast.LENGTH_LONG).show();
                     }
                     else {
                         LatLng latLng = marker.getPosition();
-                        Log.d("abcde", "이번엔 여기까지 ㅇㅇ");
                         addRowValue.put("systemid", md.getSystemID());
                         addRowValue.put("latitude", latLng.latitude);
                         addRowValue.put("longitude", latLng.longitude);
@@ -315,6 +273,7 @@ public class GPSListener implements LocationListener
                         Toast.makeText(context, "정상적으로 입력되었습니다.", Toast.LENGTH_LONG).show();
                         md.dismiss();
                         showMarker(GPSListener.ALARM_ID, md.getSystemID(), latLng.latitude, latLng.longitude);
+                        marker.remove();
                     }
                 }
             });
