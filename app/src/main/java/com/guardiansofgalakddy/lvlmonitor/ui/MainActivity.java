@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.material.navigation.NavigationView;
 import com.guardiansofgalakddy.lvlmonitor.R;
+import com.guardiansofgalakddy.lvlmonitor.seungju.LVLDBManager;
+import com.guardiansofgalakddy.lvlmonitor.seungju.dbData;
 import com.pedro.library.AutoPermissions;
 import com.pedro.library.AutoPermissionsListener;
 
@@ -47,9 +50,23 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.navigation_item_tmp:
-                        Toast.makeText(getApplicationContext(), "tmp1", Toast.LENGTH_LONG).show();
+                        Intent intento = new Intent(getApplicationContext(),DBlistActivity.class);
+                        startActivity(intento);
                         break;
                     case R.id.navigation_item_tmp2:
+                        LVLDBManager mDbManager = LVLDBManager.getInstance(getApplicationContext());
+                        for(int i=0;i<10;i++)
+                        {
+
+                            ContentValues addRowValue = new ContentValues();
+                            addRowValue.put("systemid","Title"+String.valueOf(i));
+                            addRowValue.put("latitude",i);
+                            addRowValue.put("longitude",i+100);
+
+                            long insertRecordId = mDbManager.insert(addRowValue);
+
+                        }
+
                         Toast.makeText(getApplicationContext(), "tmp2", Toast.LENGTH_LONG).show();
                         break;
                     case R.id.nav_sub_menu_open_source:
