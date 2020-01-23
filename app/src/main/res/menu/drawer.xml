@@ -4,7 +4,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/navigation_item_tmp"
-            android:title="tmp1" />
+            android:title="DBController" />
         <item
             android:id="@+id/navigation_item_tmp2"
             android:title="tmp2" />

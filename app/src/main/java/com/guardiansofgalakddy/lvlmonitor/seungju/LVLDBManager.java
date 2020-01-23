@@ -63,4 +63,16 @@ public class LVLDBManager {
         Cursor cursor = mDbManager.query(columns, null, null, null, null, null);
         return cursor;
     }
+
+    public void deleteAll() {
+        String sql = "DELETE FROM LVL;";
+        mDatabase.execSQL(sql);
+    }
+
+    public int count(){
+        int cnt = 0;
+        Cursor cursor = mDatabase.rawQuery("select * from LVL",null);
+        return cnt;
+    }
+
 }
