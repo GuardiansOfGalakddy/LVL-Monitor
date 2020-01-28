@@ -28,6 +28,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListenerBuilder;
+import com.guardiansofgalakddy.lvlmonitor.junhwa.Aes;
+import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScannerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.DB2OthersConnector;
 import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
 import com.guardiansofgalakddy.lvlmonitor.seungju.OnItemClickListener;
@@ -67,36 +69,46 @@ public class MonitorActivity extends AppCompatActivity {
 
         initGoogleMap();
         mDbManager = LVLDBManager.getInstance(this);
+        scanner = BLEScannerBuilder.getInstance(getApplicationContext());
 
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent == null)
                     return;
-                String uuid = intent.getStringExtra("UUID");
-                Log.d("onReceive", uuid);
-                String systemId = uuid.substring(0, 7);
-
-                adapter.addItem(new Data(systemId, uuid, R.drawable.ic_menu), cursor, gpsListener);
+                byte[] data = intent.getByteArrayExtra("MANUFACTURER_DATA");
+                byte[] uuid = new byte[16];
+                byte[] content = new byte[4];
+                System.arraycopy(data, 2, uuid, 0, 16);
+                StringBuilder title = new StringBuilder();
+                try {
+                    uuid = Aes.decrypt(uuid);
+                    System.arraycopy(uuid, 0, content, 0, 4);
+                    if (content[2] == 0)
+                        title.append("BS-");
+                    else
+                        title.append("RS-");
+                    title.append(String.format("%02X", content[0]&0xff));
+                    title.append(String.format("%02X", content[1]&0xff));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                adapter.addItem(new Data(title.toString(), content, R.drawable.ic_menu), cursor, gpsListener);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
                 registerReceiver(receiver, new IntentFilter("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid"));
 
-        scanner = new BLEScanner();
-        if (!scanner.initialize(this))
-            finish();
-
         adapter = new RecyclerAdapter();
-        adapter.setOnItemListener(new OnItemClickListener() {
+/*        adapter.setOnItemListener(new OnItemClickListener() {
             @Override
             public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
                 Data data = adapter.getData(position);
-                String content = data.getContent();
+                byte[] content = data.getContent();
                 Boolean isInDB = data.getResId() == R.drawable.ic_done;
                 showDialog(content, data, isInDB);
             }
-        });
+        });*/
         initializeRecyclerView();
 
         Button scanButton = findViewById(R.id.btn_scan);

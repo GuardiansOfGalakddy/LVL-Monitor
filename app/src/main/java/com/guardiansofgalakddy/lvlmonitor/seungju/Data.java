@@ -2,10 +2,10 @@ package com.guardiansofgalakddy.lvlmonitor.seungju;
 
 public class Data {
     private String title;
-    private String content;
+    private byte[] content;
     private int resId;
 
-    public Data(String title, String content, int resId) {
+    public Data(String title, byte[] content, int resId) {
         this.title = title;
         this.content = content;
         this.resId = resId;
@@ -19,11 +19,11 @@ public class Data {
         this.title = title;
     }
 
-    public String getContent() {
+    public byte[] getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(byte[] content) {
         this.content = content;
     }
 
