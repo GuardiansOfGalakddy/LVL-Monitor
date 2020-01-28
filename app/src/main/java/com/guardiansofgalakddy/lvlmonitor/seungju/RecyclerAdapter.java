@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListener;
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListenerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.R;
+import com.guardiansofgalakddy.lvlmonitor.junhwa.Aes;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.DB2OthersConnector;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
         // 외부에서 item을 추가시킬 함수입니다.
         if (DB2OthersConnector.isAlreadyExistInDB(data.getTitle(), cursor)) {
             data.setResId(R.drawable.ic_done);
-            listener.updateMarkerColor(data.getContent().charAt(10) - '0', data.getTitle());
+            listener.updateMarkerColor(data.getContent()[3], data.getTitle());
         }
         listData.add(data);
         this.notifyDataSetChanged();
@@ -87,7 +88,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
 
         void onBind(Data data) {
             textView1.setText(data.getTitle());
-            textView2.setText(data.getContent());
+            textView2.setText(data.getContent()[3] == 0 ? "noalarm" : "alarm");
             imageView.setImageResource(data.getResId());
         }
     }
