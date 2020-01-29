@@ -57,6 +57,10 @@ public class BLEScanner {
     private BluetoothGattCharacteristic rx, tx, rxCredit, txCredit = null;
     private BluetoothDevice device = null;
 
+    private byte[] history = null;
+    private int hPosition = 0;
+    private Boolean isReceiving = false;
+
     private Context context = null;
 
     BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
@@ -99,8 +103,26 @@ public class BLEScanner {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            if (characteristic.getUuid().equals(TELIT_DATA_TX))
-                Log.d("receive", new String(characteristic.getValue()));
+            if (characteristic.getUuid().equals(TELIT_DATA_TX)) {
+                byte[] data = characteristic.getValue();
+                Log.d("receive", Aes.byteArrayToHexString(data));
+                if (isReceiving) {
+                    if (data[data.length - 2] == (byte) 0xFD && data[data.length - 1] == (byte) 0xFD) {
+                        System.arraycopy(data, 0, history, hPosition, data.length - 2);
+                        hPosition = 0;
+                        isReceiving = false;
+                        Log.d("history", Aes.byteArrayToHexString(history));
+                    } else {
+                        System.arraycopy(data, 0, history, hPosition, 20);
+                        hPosition += 20;
+                    }
+                } else if (data.length == 20){
+                    history = new byte[data[10] * 24];
+                    isReceiving = true;
+                    System.arraycopy(data, 12, history, 0, 8);
+                    hPosition += 8;
+                }
+            }
         }
 
         @Override
@@ -197,7 +219,7 @@ public class BLEScanner {
         bluetoothGatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE);
     }
 
-    private void subscribe (BluetoothGattCharacteristic characteristic) {
+    private void subscribe(BluetoothGattCharacteristic characteristic) {
         bluetoothGatt.setCharacteristicNotification(characteristic, true);
         characteristic.setWriteType(2);
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CAHRACTERISTIC_NOTIFICATION_DESCRIPTOR);
