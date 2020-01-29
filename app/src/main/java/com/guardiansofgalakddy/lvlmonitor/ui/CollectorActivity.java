@@ -14,6 +14,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListener;
+import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListenerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.R;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.Aes;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
@@ -22,10 +28,13 @@ import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
 import com.guardiansofgalakddy.lvlmonitor.seungju.RecyclerAdapter;
 
 public class CollectorActivity extends AppCompatActivity {
+    /* Map object */
+    private SupportMapFragment mapFragment;
+    private GPSListener gpsListener;
+
     BLEScanner scanner = null;
     BroadcastReceiver receiver = null;
 
-    TextView txtDevice, txtLog;
 
     private RecyclerAdapter adapter;
 
@@ -34,8 +43,8 @@ public class CollectorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collector);
 
-        txtDevice = findViewById(R.id.txt_Device);
-        txtLog = findViewById(R.id.txt_Log);
+        /* Initialize Google Map */
+        initGoogleMap();
 
         scanner = BLEScannerBuilder.getInstance(getApplicationContext());
         receiver = new BroadcastReceiver() {
@@ -60,27 +69,34 @@ public class CollectorActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                txtDevice.setText(title);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
                 registerReceiver(receiver, new IntentFilter("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid"));
 
-        Button btnDiscover = findViewById(R.id.btn_Discover);
-        btnDiscover.setOnClickListener(new View.OnClickListener() {
+        Button btnRequest = findViewById(R.id.btn_request);
+        btnRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scanner.discover();
+                scanner.requestHistory();
             }
         });
-
-        Button btnConnect = findViewById(R.id.btn_Connect);
-        btnConnect.setOnClickListener(new View.OnClickListener() {
+    }
+    /* Google Map first setting */
+    private void initGoogleMap() {
+        /* Google Map Fragment register */
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_collector);
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onClick(View v) {
-                scanner.connect();
+            public void onMapReady(GoogleMap googleMap) {
+                /* set GPSListener */
+                gpsListener = new GPSListenerBuilder()
+                        .setMap(googleMap)
+                        .setContext(CollectorActivity.this)
+                        .build();
             }
         });
+    }
 
         Button btnRequest = findViewById(R.id.btn_request);
         btnRequest.setOnClickListener(new View.OnClickListener() {
@@ -109,5 +125,12 @@ public class CollectorActivity extends AppCompatActivity {
 
         adapter = new RecyclerAdapter();
         recyclerView.setAdapter(adapter);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        gpsListener.removeLocationUpdate();
     }
 }

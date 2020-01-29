@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
@@ -303,9 +304,10 @@ public class GPSListener implements LocationListener
 
     /* GPSListener's member variable initialize */
     void setInit() {
-        this.context = null;
-        this.isOnStartMap = true;
         this.map = null;
+        this.context = null;
+        this.tempMarker = null;
+        this.isOnStartMap = true;
         this.otherLocationMarkers.clear();
     }
 
@@ -327,6 +329,9 @@ public class GPSListener implements LocationListener
                 Toast.makeText(context, "GPS 권한이 없거나 위치 기능이 꺼져있습니다.", Toast.LENGTH_LONG).show();
                 ((Activity)context).finish();
             }
+            /* set Camera location */
+            if(currentLocation != null)
+                showLocation(currentLocation.getLatitude(), currentLocation.getLongitude());
 
             // GPSListener register
             long minTime = 10000;
@@ -346,6 +351,7 @@ public class GPSListener implements LocationListener
         if (locationManager != null)
             locationManager.removeUpdates(this);
     }
+
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {
 

@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -208,11 +209,6 @@ public class MonitorActivity extends AppCompatActivity {
                 gpsListener.addMarkersFromDB(GPSListener.NO_ALARM_ID, cursor);
             }
         });
-        try {
-            MapsInitializer.initialize(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
