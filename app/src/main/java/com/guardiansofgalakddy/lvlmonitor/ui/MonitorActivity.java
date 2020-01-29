@@ -1,15 +1,11 @@
 package com.guardiansofgalakddy.lvlmonitor.ui;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,7 +13,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,9 +25,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListenerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.Aes;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScannerBuilder;
-import com.guardiansofgalakddy.lvlmonitor.junhwa.DB2OthersConnector;
 import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
-import com.guardiansofgalakddy.lvlmonitor.seungju.OnItemClickListener;
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListener;
 import com.guardiansofgalakddy.lvlmonitor.R;
 import com.guardiansofgalakddy.lvlmonitor.seungju.RecyclerAdapter;
@@ -50,7 +43,6 @@ import com.guardiansofgalakddy.lvlmonitor.superb.HexToByte;
 public class MonitorActivity extends AppCompatActivity {
     /* Map object */
     private SupportMapFragment mapFragment;
-    private LocationManager locationManager;
     private GPSListener gpsListener;
 
     private RecyclerAdapter adapter;
@@ -67,6 +59,7 @@ public class MonitorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
 
+        /* Initialize Google Map */
         initGoogleMap();
         mDbManager = LVLDBManager.getInstance(this);
         scanner = BLEScannerBuilder.getInstance(getApplicationContext());
@@ -205,8 +198,11 @@ public class MonitorActivity extends AppCompatActivity {
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
-                /* Google Map setting */
-                startLocationService(googleMap);
+                /* set GPSListener */
+                gpsListener = new GPSListenerBuilder()
+                        .setMap(googleMap)
+                        .setContext(MonitorActivity.this)
+                        .build();
 
                 cursor = mDbManager.getIdNLatLng();
                 gpsListener.addMarkersFromDB(GPSListener.NO_ALARM_ID, cursor);
@@ -219,52 +215,9 @@ public class MonitorActivity extends AppCompatActivity {
         }
     }
 
-    /* Google Map location information get, location setting */
-    private void startLocationService(GoogleMap googleMap) {
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        try {// Check location authority and location function available
-            // False: finish()
-            if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) ||
-                    !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                Toast.makeText(getApplicationContext(), "GPS 권한이 없거나 위치 기능이 꺼져있습니다.", Toast.LENGTH_LONG).show();
-                finish();
-            }
-
-            /* set GPSListener */
-            /* set camera and marker start location */
-            /* It may be inaccurate location but soon find current location*/
-            GPSListenerBuilder builder = GPSListenerBuilder.getInstance();
-            gpsListener = builder
-                    .setMap(googleMap)
-                    .setContext(this)
-                    .getGpsListener();
-
-            /* set camera and marker start location */
-            /* It may be inaccurate location but soon find current location*/
-            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (location != null)
-                gpsListener.showLocation(location.getLatitude(), location.getLongitude());
-
-            // GPSListener register
-            long minTime = 10000;
-            float minDistance = 0;
-
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, gpsListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, gpsListener);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (gpsListener != null) {
-            gpsListener.getMap().setMyLocationEnabled(false);
-
-            if (locationManager != null)
-                locationManager.removeUpdates(gpsListener);
-        }
+        gpsListener.removeLocationUpdate();
     }
 }
