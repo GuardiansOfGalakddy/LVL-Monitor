@@ -8,7 +8,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.guardiansofgalakddy.lvlmonitor.superb.HexToByte;
 
 public class DB2OthersConnector {
     public static Marker[] addMarkersFromDB(GoogleMap map, Cursor cursor) {

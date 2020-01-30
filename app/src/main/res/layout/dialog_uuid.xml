@@ -24,59 +24,75 @@
         android:padding="10dp">
 
         <TextView
-            android:id="@+id/txt1"
+            android:id="@+id/txtNID"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="System id" />
+            android:text="NID" />
 
         <TextView
-            android:id="@+id/txt2"
+            android:id="@+id/txtAID"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="AID" />
 
         <TextView
-            android:id="@+id/txt3"
+            android:id="@+id/txtSEV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="SEV" />
 
+
         <TextView
-            android:id="@+id/txt4"
+            android:id="@+id/txtVal1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="value1" />
+
+        <TextView
+            android:id="@+id/txtVal2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="value2" />
+
+        <TextView
+            android:id="@+id/txtTH1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="th1" />
+
+        <TextView
+            android:id="@+id/txtTH2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="th2" />
+
+        <TextView
+            android:id="@+id/txtALM"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="ALM" />
 
         <TextView
-            android:id="@+id/txt5"
+            android:id="@+id/txtOCRTIME"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="STS" />
+            android:text="OCR_TIME" />
 
         <TextView
-            android:id="@+id/txt6"
+            android:id="@+id/txtRLSTIME"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="TIME" />
+            android:text="RLS_TIME" />
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="APPEND" />
-
-    <Button
-        android:id="@+id/button4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="DELETE"
-        android:visibility="gone" />
 
 </LinearLayout>
