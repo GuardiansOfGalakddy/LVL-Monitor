@@ -54,6 +54,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
         listData.add(data);
         this.notifyDataSetChanged();
     }
+    public void addItem(Data data)
+    {
+        listData.add(data);
+
+    }
 
     private Boolean isAlreadyExist(Data data) {
         for (Data d : listData)

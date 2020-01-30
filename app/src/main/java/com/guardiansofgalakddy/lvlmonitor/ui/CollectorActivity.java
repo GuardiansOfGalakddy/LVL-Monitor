@@ -2,6 +2,8 @@ package com.guardiansofgalakddy.lvlmonitor.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,12 +19,15 @@ import com.guardiansofgalakddy.lvlmonitor.junhwa.Aes;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScannerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
+import com.guardiansofgalakddy.lvlmonitor.seungju.RecyclerAdapter;
 
 public class CollectorActivity extends AppCompatActivity {
     BLEScanner scanner = null;
     BroadcastReceiver receiver = null;
 
     TextView txtDevice, txtLog;
+
+    private RecyclerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,5 +89,25 @@ public class CollectorActivity extends AppCompatActivity {
                 scanner.requestHistory();
             }
         });
+        init();
+
+        String str = "test";
+        Data data = new Data(str,str.getBytes(),R.drawable.blank);
+
+
+        adapter.addItem(data);
+        adapter.notifyDataSetChanged();
+
+
+    }
+
+    private void init() {
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        adapter = new RecyclerAdapter();
+        recyclerView.setAdapter(adapter);
     }
 }
