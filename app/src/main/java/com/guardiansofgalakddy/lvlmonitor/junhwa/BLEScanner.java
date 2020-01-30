@@ -18,13 +18,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
-import android.os.ParcelUuid;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import com.guardiansofgalakddy.lvlmonitor.superb.HexToByte;
 
 import java.util.ArrayList;
 import java.util.List;

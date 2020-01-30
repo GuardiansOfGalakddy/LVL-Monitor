@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,7 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
@@ -34,7 +32,7 @@ import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
 import com.google.android.gms.maps.model.LatLng;
 
 import com.guardiansofgalakddy.lvlmonitor.seungju.LVLDBManager;
-import com.guardiansofgalakddy.lvlmonitor.superb.HexToByte;
+import com.guardiansofgalakddy.lvlmonitor.superb.HistoryDialog;
 
 /* Google Map 관련 코드 - 천우진
  *  GPSListener, startLocationService(), initGoogleMap()
@@ -51,7 +49,7 @@ public class MonitorActivity extends AppCompatActivity {
     private BroadcastReceiver receiver = null;
     private Cursor cursor = null;
 
-    HexToByte hTB = null;
+    HistoryDialog historyDialog = null;
 
     public LVLDBManager mDbManager = null;
 
@@ -121,33 +119,43 @@ public class MonitorActivity extends AppCompatActivity {
         });
     }
 
-    private void showDialog(String uuid, final Data data, Boolean alreadyInDB) {
+    private void showDialog(byte[] uuid) {
         try {
-            hTB = new HexToByte(this);
-            hTB.initializeHexToByte(uuid);
-            hTB.show();
+            historyDialog = new HistoryDialog(this);
+            historyDialog.initializeHistory(uuid);
+            historyDialog.show();
+        } catch (Exception e) {
+            Log.e("showDialog", e.toString());
+        }
+    }
+
+    /*private void showDialog(String uuid, final Data data, Boolean alreadyInDB) {
+        try {
+            historyDialog = new HistoryDialog(this);
+            historyDialog.initializeHexToByte(uuid);
+            historyDialog.show();
             if (!alreadyInDB) {
                 //for append in DB
-                hTB.setButtonOnClickListener(new View.OnClickListener() {
+                historyDialog.setButtonOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         ContentValues addRowValue = new ContentValues();
                         LatLng latLng = gpsListener.getCurrentLocation();
 
-                        addRowValue.put("systemid", hTB.getSystemID());
+                        addRowValue.put("systemid", historyDialog.getSystemID());
                         addRowValue.put("latitude", latLng.latitude);
                         addRowValue.put("longitude", latLng.longitude);
                         mDbManager.insert(addRowValue);
                         Toast.makeText(getApplicationContext(), "정상적으로 입력되었습니다.", Toast.LENGTH_LONG).show();
-                        hTB.dismiss();
+                        historyDialog.dismiss();
                         data.setResId(R.drawable.ic_done);
                         adapter.notifyDataSetChanged();
-                        gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
+                        gpsListener.showMarker(GPSListener.ALARM_ID, historyDialog.getSystemID(), latLng.latitude, latLng.longitude);
                     }
                 }, alreadyInDB);
             } else {
                 //for update latitude and longitude
-                hTB.setButtonOnClickListener(new View.OnClickListener() {
+                historyDialog.setButtonOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         ContentValues updateRowValue = new ContentValues();
@@ -156,32 +164,32 @@ public class MonitorActivity extends AppCompatActivity {
                         updateRowValue.put("longitude", latLng.longitude);
 
                         mDbManager.update(updateRowValue,
-                                "systemid=\"" + hTB.getSystemID() + "\"", null);
+                                "systemid=\"" + historyDialog.getSystemID() + "\"", null);
                         Toast.makeText(getApplicationContext(), "업데이트 완료했습니다.", Toast.LENGTH_LONG).show();
-                        hTB.dismiss();
-                        gpsListener.showMarker(GPSListener.ALARM_ID, hTB.getSystemID(), latLng.latitude, latLng.longitude);
+                        historyDialog.dismiss();
+                        gpsListener.showMarker(GPSListener.ALARM_ID, historyDialog.getSystemID(), latLng.latitude, latLng.longitude);
                     }
                 }, alreadyInDB);
 
                 //for using delete btn
-                hTB.setDeleteButtonOnClickListener(new View.OnClickListener() {
+                historyDialog.setDeleteButtonOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         LatLng latLng = gpsListener.getCurrentLocation();
 
-                        mDbManager.delete("systemid=\"" + hTB.getSystemID() + "\"", null);
+                        mDbManager.delete("systemid=\"" + historyDialog.getSystemID() + "\"", null);
                         Toast.makeText(getApplicationContext(), "삭제했습니다.", Toast.LENGTH_LONG).show();
-                        hTB.dismiss();
+                        historyDialog.dismiss();
                         data.setResId(R.drawable.ic_menu);
                         adapter.notifyDataSetChanged();
-                        gpsListener.removeMark(hTB.getSystemID());
+                        gpsListener.removeMark(historyDialog.getSystemID());
                     }
                 });
             }
         } catch (Exception e) {
             Log.e("showDialog", e.toString());
         }
-    }
+    }*/
 
     private void initializeRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
