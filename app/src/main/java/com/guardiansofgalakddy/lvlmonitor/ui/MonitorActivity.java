@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -81,8 +82,8 @@ public class MonitorActivity extends AppCompatActivity {
                         title.append("BS-");
                     else
                         title.append("RS-");
-                    title.append(String.format("%02X", content[1]&0xff));
-                    title.append(String.format("%02X", content[0]&0xff));
+                    title.append(String.format("%02X", content[1] & 0xff));
+                    title.append(String.format("%02X", content[0] & 0xff));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -97,21 +98,19 @@ public class MonitorActivity extends AppCompatActivity {
             @Override
             public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
                 Data data = adapter.getData(position);
-                if (data.getDevice() == null) {
-                    Toast.makeText(getApplicationContext(), "asdfasdf", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                byte[] content = data.getContent();
-                if (content[2] == 1) {
-                    scanner.connect(data.getDevice());
-                    Intent intent = new Intent(getApplicationContext(), CollectorActivity.class);
-                    startActivity(intent);
-                }
+                //byte[] content = data.getContent();
+                Intent intent = new Intent(getApplicationContext(), CollectorActivity.class);
+                intent.putExtra("DEVICE", data.getDevice());
+                startActivity(intent);
             }
         });
         initializeRecyclerView();
 
         Button scanButton = findViewById(R.id.btn_scan);
+        if (scanner == null)
+            scanButton.setText("Bluetooth adapter not found");
+        else
+            scanButton.setEnabled(true);
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -126,68 +125,6 @@ public class MonitorActivity extends AppCompatActivity {
             }
         });
     }
-
-    /*private void showDialog(String uuid, final Data data, Boolean alreadyInDB) {
-        try {
-            historyDialog = new HistoryDialog(this);
-            historyDialog.initializeHexToByte(uuid);
-            historyDialog.show();
-            if (!alreadyInDB) {
-                //for append in DB
-                historyDialog.setButtonOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ContentValues addRowValue = new ContentValues();
-                        LatLng latLng = gpsListener.getCurrentLocation();
-
-                        addRowValue.put("systemid", historyDialog.getSystemID());
-                        addRowValue.put("latitude", latLng.latitude);
-                        addRowValue.put("longitude", latLng.longitude);
-                        mDbManager.insert(addRowValue);
-                        Toast.makeText(getApplicationContext(), "정상적으로 입력되었습니다.", Toast.LENGTH_LONG).show();
-                        historyDialog.dismiss();
-                        data.setResId(R.drawable.ic_done);
-                        adapter.notifyDataSetChanged();
-                        gpsListener.showMarker(GPSListener.ALARM_ID, historyDialog.getSystemID(), latLng.latitude, latLng.longitude);
-                    }
-                }, alreadyInDB);
-            } else {
-                //for update latitude and longitude
-                historyDialog.setButtonOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        ContentValues updateRowValue = new ContentValues();
-                        LatLng latLng = gpsListener.getCurrentLocation();
-                        updateRowValue.put("latitude", latLng.latitude);
-                        updateRowValue.put("longitude", latLng.longitude);
-
-                        mDbManager.update(updateRowValue,
-                                "systemid=\"" + historyDialog.getSystemID() + "\"", null);
-                        Toast.makeText(getApplicationContext(), "업데이트 완료했습니다.", Toast.LENGTH_LONG).show();
-                        historyDialog.dismiss();
-                        gpsListener.showMarker(GPSListener.ALARM_ID, historyDialog.getSystemID(), latLng.latitude, latLng.longitude);
-                    }
-                }, alreadyInDB);
-
-                //for using delete btn
-                historyDialog.setDeleteButtonOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        LatLng latLng = gpsListener.getCurrentLocation();
-
-                        mDbManager.delete("systemid=\"" + historyDialog.getSystemID() + "\"", null);
-                        Toast.makeText(getApplicationContext(), "삭제했습니다.", Toast.LENGTH_LONG).show();
-                        historyDialog.dismiss();
-                        data.setResId(R.drawable.ic_menu);
-                        adapter.notifyDataSetChanged();
-                        gpsListener.removeMark(historyDialog.getSystemID());
-                    }
-                });
-            }
-        } catch (Exception e) {
-            Log.e("showDialog", e.toString());
-        }
-    }*/
 
     private void initializeRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);

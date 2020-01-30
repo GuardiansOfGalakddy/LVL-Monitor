@@ -24,6 +24,8 @@ import android.widget.Toast;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.guardiansofgalakddy.lvlmonitor.ui.CollectorActivity;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -58,6 +60,7 @@ public class BLEScanner {
     private byte[] history = null;
     private int hPosition = 0;
     private Boolean isReceiving = false;
+    private Boolean isConnected = false;
 
     private Context context = null;
 
@@ -67,8 +70,10 @@ public class BLEScanner {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.i("gattCallback", "new State = Connected");
                 Log.i("gattCallback", "Attempting to start service discovery:" + bluetoothGatt.discoverServices());
+                isConnected = true;
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.i("gattCallback", "new State = Disconnected");
+                isConnected = false;
             }
         }
 
@@ -131,12 +136,9 @@ public class BLEScanner {
             Log.i("onDescriptorWrite", descriptor.toString() + " " + status);
             if (descriptor.getCharacteristic().equals(txCredit))
                 subscribe(tx);
-            else if (descriptor.getCharacteristic().equals(tx)) {
+            else if (descriptor.getCharacteristic().equals(tx))
                 trySend(rxCredit, 64);
-/*                Intent intent = new Intent();
-                intent.putExtra("CONNECT", true);
-                broadcastManager.sendBroadcast(intent);*/
-            }
+
             super.onDescriptorWrite(gatt, descriptor, status);
         }
     };
@@ -222,6 +224,10 @@ public class BLEScanner {
         bluetoothGatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE);
     }
 
+    public void disConnect() {
+        bluetoothGatt.disconnect();
+    }
+
     private void subscribe(BluetoothGattCharacteristic characteristic) {
         bluetoothGatt.setCharacteristicNotification(characteristic, true);
         characteristic.setWriteType(2);
@@ -234,7 +240,7 @@ public class BLEScanner {
     }
 
     private void trySend(BluetoothGattCharacteristic characteristic, int nCredits) {
-        Boolean bResult = characteristic.setValue(nCredits, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+        boolean bResult = characteristic.setValue(nCredits, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
         Log.v("ble", "trySendCredits setValue(): " + bResult);
         bResult = bluetoothGatt.writeCharacteristic(characteristic);
         Log.v("ble", "trySendCredits writeCharacteristic(): " + bResult);
@@ -243,5 +249,9 @@ public class BLEScanner {
     public void requestHistory() {
         rx.setValue(REQUEST_ALARM_HISTORY);
         bluetoothGatt.writeCharacteristic(rx);
+    }
+
+    public Boolean getConnected() {
+        return isConnected;
     }
 }

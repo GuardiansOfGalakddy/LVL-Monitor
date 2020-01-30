@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -57,6 +58,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
 
     public void addItem(Data data) {
         listData.add(data);
+        this.notifyDataSetChanged();
     }
 
     private Boolean isAlreadyExist(Data data) {

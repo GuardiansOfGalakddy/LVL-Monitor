@@ -9,7 +9,8 @@ public class BLEScannerBuilder {
         if (bleScanner != null)
             return bleScanner;
         bleScanner = new BLEScanner();
-        bleScanner.initialize(context);
-        return bleScanner;
+        if (bleScanner.initialize(context))
+            return bleScanner;
+        return null;
     }
 }
