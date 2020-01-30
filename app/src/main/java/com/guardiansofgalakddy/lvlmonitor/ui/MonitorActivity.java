@@ -1,5 +1,6 @@
 package com.guardiansofgalakddy.lvlmonitor.ui;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -27,6 +28,7 @@ import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScannerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListener;
 import com.guardiansofgalakddy.lvlmonitor.R;
+import com.guardiansofgalakddy.lvlmonitor.seungju.OnItemClickListener;
 import com.guardiansofgalakddy.lvlmonitor.seungju.RecyclerAdapter;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
 import com.google.android.gms.maps.model.LatLng;
@@ -49,8 +51,6 @@ public class MonitorActivity extends AppCompatActivity {
     private BroadcastReceiver receiver = null;
     private Cursor cursor = null;
 
-    HistoryDialog historyDialog = null;
-
     public LVLDBManager mDbManager = null;
 
     @Override
@@ -68,6 +68,7 @@ public class MonitorActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if (intent == null)
                     return;
+                BluetoothDevice device = intent.getParcelableExtra("DEVICE");
                 byte[] data = intent.getByteArrayExtra("MANUFACTURER_DATA");
                 byte[] uuid = new byte[16];
                 byte[] content = new byte[4];
@@ -85,22 +86,29 @@ public class MonitorActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                adapter.addItem(new Data(title.toString(), content, R.drawable.ic_menu), cursor, gpsListener);
+                adapter.addItem(new Data(title.toString(), content, device, R.drawable.ic_menu), cursor, gpsListener);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
                 registerReceiver(receiver, new IntentFilter("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid"));
 
         adapter = new RecyclerAdapter();
-/*        adapter.setOnItemListener(new OnItemClickListener() {
+        adapter.setOnItemListener(new OnItemClickListener() {
             @Override
             public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
                 Data data = adapter.getData(position);
+                if (data.getDevice() == null) {
+                    Toast.makeText(getApplicationContext(), "asdfasdf", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 byte[] content = data.getContent();
-                Boolean isInDB = data.getResId() == R.drawable.ic_done;
-                showDialog(content, data, isInDB);
+                if (content[2] == 1) {
+                    scanner.connect(data.getDevice());
+                    Intent intent = new Intent(getApplicationContext(), CollectorActivity.class);
+                    startActivity(intent);
+                }
             }
-        });*/
+        });
         initializeRecyclerView();
 
         Button scanButton = findViewById(R.id.btn_scan);
@@ -117,16 +125,6 @@ public class MonitorActivity extends AppCompatActivity {
                 }).start();
             }
         });
-    }
-
-    private void showDialog(byte[] uuid) {
-        try {
-            historyDialog = new HistoryDialog(this);
-            historyDialog.initializeHistory(uuid);
-            historyDialog.show();
-        } catch (Exception e) {
-            Log.e("showDialog", e.toString());
-        }
     }
 
     /*private void showDialog(String uuid, final Data data, Boolean alreadyInDB) {

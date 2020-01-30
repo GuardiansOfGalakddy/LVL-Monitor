@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -25,7 +26,9 @@ import com.guardiansofgalakddy.lvlmonitor.junhwa.Aes;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScannerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
+import com.guardiansofgalakddy.lvlmonitor.seungju.OnItemClickListener;
 import com.guardiansofgalakddy.lvlmonitor.seungju.RecyclerAdapter;
+import com.guardiansofgalakddy.lvlmonitor.superb.HistoryDialog;
 
 public class CollectorActivity extends AppCompatActivity {
     /* Map object */
@@ -34,6 +37,8 @@ public class CollectorActivity extends AppCompatActivity {
 
     BLEScanner scanner = null;
     BroadcastReceiver receiver = null;
+
+    HistoryDialog historyDialog = null;
 
     private RecyclerAdapter adapter;
 
@@ -44,6 +49,7 @@ public class CollectorActivity extends AppCompatActivity {
 
         /* Initialize Google Map */
         initGoogleMap();
+        historyDialog = new HistoryDialog(this);
 
         scanner = BLEScannerBuilder.getInstance(getApplicationContext());
         receiver = new BroadcastReceiver() {
@@ -51,27 +57,22 @@ public class CollectorActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if (intent == null)
                     return;
-                byte[] data = intent.getByteArrayExtra("MANUFACTURER_DATA");
-                byte[] uuid = new byte[16];
-                byte[] content = new byte[4];
-                System.arraycopy(data, 2, uuid, 0, 16);
-                StringBuilder title = new StringBuilder();
-                try {
-                    uuid = Aes.decrypt(uuid);
-                    System.arraycopy(uuid, 0, content, 0, 4);
-                    if (content[2] == 0)
-                        title.append("BS-");
-                    else
-                        title.append("RS-");
-                    title.append(String.format("%02X", content[0]&0xff));
-                    title.append(String.format("%02X", content[1]&0xff));
-                } catch (Exception e) {
-                    e.printStackTrace();
+                byte[] data = intent.getByteArrayExtra("HISTORY");
+                Log.d("history", Aes.byteArrayToHexString(data));
+
+                for (int i = 0; i < (data.length / 24); i++) {
+                    byte[] history = new byte[24];
+                    System.arraycopy(data, i * 24, history, 0, 24);
+                    StringBuilder title = new StringBuilder();
+                    title.append(String.format("%02X", history[1]&0xff));
+                    title.append(String.format("%02X", history[0]&0xff));
+                    adapter.addItem(new Data(title.toString(), history, null, R.drawable.blank));
+                    adapter.notifyDataSetChanged();
                 }
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
-                registerReceiver(receiver, new IntentFilter("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid"));
+                registerReceiver(receiver, new IntentFilter("com.guardiansofgalakddy.lvlmonitor.action.sendhistory"));
 
         Button btnRequest = findViewById(R.id.btn_request);
         btnRequest.setOnClickListener(new View.OnClickListener() {
@@ -81,13 +82,7 @@ public class CollectorActivity extends AppCompatActivity {
             }
         });
 
-        String str = "test";
-        Data data = new Data(str,str.getBytes(),R.drawable.blank);
-
-
         init();
-        adapter.addItem(data);
-        adapter.notifyDataSetChanged();
     }
     /* Google Map first setting */
     private void initGoogleMap() {
@@ -113,9 +108,24 @@ public class CollectorActivity extends AppCompatActivity {
 
         adapter = new RecyclerAdapter();
         recyclerView.setAdapter(adapter);
+        adapter.setOnItemListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
+                Data data = adapter.getData(position);
+                showDialog(data.getContent());
+            }
+        });
 
     }
-
+    private void showDialog(byte[] bytes) {
+        try {
+            historyDialog = new HistoryDialog(this);
+            historyDialog.initializeHistory(bytes);
+            historyDialog.show();
+        } catch (Exception e) {
+            Log.e("showDialog", e.toString());
+        }
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();

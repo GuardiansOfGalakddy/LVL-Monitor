@@ -17,6 +17,7 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
@@ -108,7 +109,10 @@ public class BLEScanner {
                         System.arraycopy(data, 0, history, hPosition, data.length - 2);
                         hPosition = 0;
                         isReceiving = false;
-                        Log.d("history", Aes.byteArrayToHexString(history));
+                        Intent intent = new Intent();
+                        intent.setAction("com.guardiansofgalakddy.lvlmonitor.action.sendhistory");
+                        intent.putExtra("HISTORY", history);
+                        broadcastManager.sendBroadcast(intent);
                     } else {
                         System.arraycopy(data, 0, history, hPosition, 20);
                         hPosition += 20;
@@ -154,6 +158,7 @@ public class BLEScanner {
             Intent intent = new Intent();
             intent.setAction("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid");
             intent.putExtra("MANUFACTURER_DATA", data);
+            intent.putExtra("DEVICE", device);
             broadcastManager.sendBroadcast(intent);
         }
 
@@ -212,7 +217,8 @@ public class BLEScanner {
         }, 5000);
     }
 
-    public void connect() {
+    public void connect(BluetoothDevice device) {
+        this.device = device;
         bluetoothGatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE);
     }
 

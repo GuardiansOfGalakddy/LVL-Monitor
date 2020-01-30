@@ -52,14 +52,7 @@ public class HistoryDialog extends Dialog {
         String NID = null;
         String AID, SEV, ALM, VALUE1, VALUE2, TH1, TH2, OCR_TIME, RLS_TIME = null;
 
-        switch (strUUID.substring(3, 4)) {
-            case "0":
-                NID = "BS-" + strUUID.substring(0,4);
-                break;
-            case "1":
-                NID = "RS-" + strUUID.substring(0,4);
-                break;
-        }
+        NID = "BS-" + String.format("%02X", uuid[1]&0xff) + String.format("%02X", uuid[0]&0xff);
 
         switch (strUUID.substring(5, 6)) {
             case "0":
@@ -109,10 +102,10 @@ public class HistoryDialog extends Dialog {
                 break;
         }
 
-        VALUE1 = " " + Integer.parseInt(strUUID.substring(8, 10));
-        VALUE2 = " " + Integer.parseInt(strUUID.substring(10, 12));
-        TH1 = " " + Integer.parseInt(strUUID.substring(12, 14));
-        TH2 = " " + Integer.parseInt(strUUID.substring(14, 16));
+        VALUE1 = "value1 = " + Integer.parseInt(strUUID.substring(8, 10));
+        VALUE2 = "value2 = " + Integer.parseInt(strUUID.substring(10, 12));
+        TH1 = "th1 = " + Integer.parseInt(strUUID.substring(12, 14));
+        TH2 = "th2 = " + Integer.parseInt(strUUID.substring(14, 16));
 
         txtNID.setText(NID);
         txtAID.setText(AID);
@@ -141,6 +134,7 @@ public class HistoryDialog extends Dialog {
                 .append(strUUID.substring(38, 40)).append("시")
                 .append(strUUID.substring(40, 42)).append("분")
                 .append(strUUID.substring(42, 44)).append("초");
+        txtRLSTIME.setText(rlsTimeBuilder.toString());
     }
 
     /*public void showData() {

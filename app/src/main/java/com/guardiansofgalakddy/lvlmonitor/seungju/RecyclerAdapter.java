@@ -54,10 +54,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
         listData.add(data);
         this.notifyDataSetChanged();
     }
-    public void addItem(Data data)
-    {
-        listData.add(data);
 
+    public void addItem(Data data) {
+        listData.add(data);
     }
 
     private Boolean isAlreadyExist(Data data) {
@@ -93,7 +92,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
 
         void onBind(Data data) {
             textView1.setText(data.getTitle());
-            textView2.setText(data.getContent()[3] == 0 ? "noalarm" : "alarm");
+            if (data.getContent().length == 16)
+                textView2.setText(data.getContent()[3] == 0 ? "noalarm" : "alarm");
+            else
+                textView2.setText(Aes.byteArrayToHexString(data.getContent()));
             imageView.setImageResource(data.getResId());
         }
     }
