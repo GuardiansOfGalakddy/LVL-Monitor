@@ -1,11 +1,11 @@
 package com.guardiansofgalakddy.lvlmonitor.seungju;
 
-public class Data {
+public class dbData {
     private String title;
-    private byte[] content;
-    private int resId;
+    private double content;
+    private double resId;
 
-    public Data(String title, byte[] content, int resId) {
+    public dbData(String title, double content, double resId) {
         this.title = title;
         this.content = content;
         this.resId = resId;
@@ -19,19 +19,19 @@ public class Data {
         this.title = title;
     }
 
-    public byte[] getContent() {
+    public double getContent() {
         return content;
     }
 
-    public void setContent(byte[] content) {
+    public void setContent(double content) {
         this.content = content;
     }
 
-    public int getResId() {
+    public double getResId() {
         return resId;
     }
 
-    public void setResId(int resId) {
+    public void setResId(double resId) {
         this.resId = resId;
     }
 }
