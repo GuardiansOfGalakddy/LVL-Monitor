@@ -8,34 +8,17 @@
     tools:context=".ui.CollectorActivity">
 
     <Button
-        android:id="@+id/btn_Discover"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="discover" />
-
-    <Button
-        android:id="@+id/btn_Connect"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="connect" />
-
-    <Button
         android:id="@+id/btn_request"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="request history" />
 
-    <TextView
-        android:id="@+id/txt_Device"
+    <fragment
+        android:id="@+id/map_collector"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txt_Log"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_height="0dp"
+        android:layout_weight="7"
+        class="com.google.android.gms.maps.SupportMapFragment"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
