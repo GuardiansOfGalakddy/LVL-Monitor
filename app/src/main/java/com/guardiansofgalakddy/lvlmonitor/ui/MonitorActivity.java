@@ -82,8 +82,8 @@ public class MonitorActivity extends AppCompatActivity {
                         title.append("BS-");
                     else
                         title.append("RS-");
-                    title.append(String.format("%02X", content[0]&0xff));
                     title.append(String.format("%02X", content[1]&0xff));
+                    title.append(String.format("%02X", content[0]&0xff));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
