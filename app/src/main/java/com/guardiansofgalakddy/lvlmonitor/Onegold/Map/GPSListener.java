@@ -1,14 +1,21 @@
 package com.guardiansofgalakddy.lvlmonitor.Onegold.Map;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -43,14 +50,15 @@ public class GPSListener implements LocationListener
     private static final float COLLECTOR_MARKER_COLOR = BitmapDescriptorFactory.HUE_CYAN;
     private static final float TEMPORARY_MARKER_COLOR = BitmapDescriptorFactory.HUE_GREEN;
 
-    private GoogleMap map;
-    private Location currentLocation;
     private Marker myLocationMarker;
-    private HashMap<String, Marker> otherLocationMarkers = new HashMap<>();
     private Marker tempMarker = null;
+    private HashMap<String, Marker> otherLocationMarkers = new HashMap<>();
     private boolean isOnStartMap;
 
+    private GoogleMap map;
     private Context context;
+    private Location currentLocation;
+    private LocationManager locationManager;
 
     MarkerDialog md = null;
 
@@ -70,25 +78,15 @@ public class GPSListener implements LocationListener
 
     @Override
     public void onLocationChanged(Location location) {
-        double latitude;
-        double longitude;
-
         // check best location provider
         if (isBetterLocation(location, currentLocation)) {
             currentLocation = location;
         }
-        latitude = currentLocation.getLatitude();
-        longitude = currentLocation.getLongitude();
 
         if (isOnStartMap) {
-            // Map start : move camera and marker
-            showLocation(latitude, longitude);
+            // Map start : move camera
+            showLocation(currentLocation.getLatitude(), currentLocation.getLongitude());
             isOnStartMap = false;
-        } else {
-            // Map in progress : only move marker
-            // prevent camera auto move
-            LatLng curPoint = new LatLng(latitude, longitude);
-            //showMyLocationMarker(curPoint);
         }
     }
 
@@ -137,12 +135,6 @@ public class GPSListener implements LocationListener
     // Move camera to current location on Google Map
     public void showLocation(Double latitude, Double longitude) {
         LatLng curPoint = new LatLng(latitude, longitude);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(curPoint, 15));
-        //showMyLocationMarker(curPoint);
-    }
-
-    public void showCurrentLocation() {
-        LatLng curPoint = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(curPoint, 15));
     }
 
@@ -283,10 +275,10 @@ public class GPSListener implements LocationListener
     }
     /* get current location*/
     public LatLng getCurrentLocation() {
-        Double latitude = currentLocation.getLatitude();
-        Double longitude = currentLocation.getLongitude();
-
-        LatLng curPoint = new LatLng(latitude, longitude);
+        LatLng curPoint = new LatLng(
+                currentLocation.getLatitude(),
+                currentLocation.getLongitude()
+        );
 
         return curPoint;
     }
@@ -309,12 +301,55 @@ public class GPSListener implements LocationListener
         this.context = context;
         mDbManager = LVLDBManager.getInstance(context);
     }
-    void setInit() {
-        this.context = null;
-        this.isOnStartMap = true;
-        this.map = null;
-        this.otherLocationMarkers.clear();
 
+    /* GPSListener's member variable initialize */
+    void setInit() {
+        this.map = null;
+        this.context = null;
+        this.tempMarker = null;
+        this.isOnStartMap = true;
+        this.otherLocationMarkers.clear();
+    }
+
+    /* Register GPSListener in LocationManager */
+    boolean startLocationUpdate(){
+        /* if map is null or context is null, return false; */
+        if(map == null || context == null){
+            Log.e("startLocationUpdate", "no map instance OR no context instance");
+            return false;
+        }
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
+        try {
+            /* Check location authority and location function available */
+            /* False: close activity */
+            if ((ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) ||
+                    !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                Toast.makeText(context, "GPS 권한이 없거나 위치 기능이 꺼져있습니다.", Toast.LENGTH_LONG).show();
+                ((Activity)context).finish();
+            }
+            /* set Camera location */
+            if(currentLocation != null)
+                showLocation(currentLocation.getLatitude(), currentLocation.getLongitude());
+
+            // GPSListener register
+            long minTime = 10000;
+            float minDistance = 0;
+
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, this);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /* Remove GPSListener from LocationManager */
+    public void removeLocationUpdate(){
+        if (locationManager != null)
+            locationManager.removeUpdates(this);
     }
 
     @Override
