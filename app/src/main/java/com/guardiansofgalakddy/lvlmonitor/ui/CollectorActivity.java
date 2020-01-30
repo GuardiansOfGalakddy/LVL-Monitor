@@ -35,7 +35,6 @@ public class CollectorActivity extends AppCompatActivity {
     BLEScanner scanner = null;
     BroadcastReceiver receiver = null;
 
-
     private RecyclerAdapter adapter;
 
     @Override
@@ -81,6 +80,14 @@ public class CollectorActivity extends AppCompatActivity {
                 scanner.requestHistory();
             }
         });
+
+        String str = "test";
+        Data data = new Data(str,str.getBytes(),R.drawable.blank);
+
+
+        init();
+        adapter.addItem(data);
+        adapter.notifyDataSetChanged();
     }
     /* Google Map first setting */
     private void initGoogleMap() {
@@ -96,25 +103,6 @@ public class CollectorActivity extends AppCompatActivity {
                         .build();
             }
         });
-    }
-
-        Button btnRequest = findViewById(R.id.btn_request);
-        btnRequest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                scanner.requestHistory();
-            }
-        });
-        init();
-
-        String str = "test";
-        Data data = new Data(str,str.getBytes(),R.drawable.blank);
-
-
-        adapter.addItem(data);
-        adapter.notifyDataSetChanged();
-
-
     }
 
     private void init() {

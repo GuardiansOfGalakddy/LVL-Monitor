@@ -20,12 +20,6 @@
         android:layout_weight="7"
         class="com.google.android.gms.maps.SupportMapFragment"/>
 
-    <TextView
-        android:id="@+id/txt_Log"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
