@@ -199,7 +199,7 @@ public class BLEScanner {
 
     public void discover() {
         ScanFilter filter = new ScanFilter.Builder()
-                .setManufacturerData(0x4C, BEACON_MANUFACTURER_DATA, BEACON_MANUFACTURER_DATA_MASK)
+                //.setManufacturerData(0x4C, BEACON_MANUFACTURER_DATA, BEACON_MANUFACTURER_DATA_MASK)
                 .build();
 
         List<ScanFilter> filters = new ArrayList<>();

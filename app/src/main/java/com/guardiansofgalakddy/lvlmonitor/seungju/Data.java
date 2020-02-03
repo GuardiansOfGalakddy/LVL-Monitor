@@ -10,7 +10,10 @@ public class Data {
 
     public Data(String title, byte[] content, BluetoothDevice device, int resId) {
         this.device = device;
-        this.title = title;
+        if (title == null)
+            this.title = "null";
+        else
+            this.title = title;
         this.content = content;
         this.resId = resId;
     }

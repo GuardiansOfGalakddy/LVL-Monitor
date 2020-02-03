@@ -73,7 +73,7 @@ public class MonitorActivity extends AppCompatActivity {
                 byte[] data = intent.getByteArrayExtra("MANUFACTURER_DATA");
                 byte[] uuid = new byte[16];
                 byte[] content = new byte[4];
-                System.arraycopy(data, 2, uuid, 0, 16);
+/*                System.arraycopy(data, 2, uuid, 0, 16);
                 StringBuilder title = new StringBuilder();
                 try {
                     uuid = Aes.decrypt(uuid);
@@ -86,8 +86,8 @@ public class MonitorActivity extends AppCompatActivity {
                     title.append(String.format("%02X", content[0] & 0xff));
                 } catch (Exception e) {
                     e.printStackTrace();
-                }
-                adapter.addItem(new Data(title.toString(), content, device, R.drawable.ic_menu), cursor, gpsListener);
+                }*/
+                adapter.addItem(new Data(device.getName(), content, device, R.drawable.ic_menu), cursor, gpsListener);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
