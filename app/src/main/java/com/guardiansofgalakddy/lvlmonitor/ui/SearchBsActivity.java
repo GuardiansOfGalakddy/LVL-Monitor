@@ -19,13 +19,14 @@ import com.guardiansofgalakddy.lvlmonitor.R;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScannerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.seungju.BsData;
-import com.guardiansofgalakddy.lvlmonitor.seungju.RecyclerAdapter3;
+import com.guardiansofgalakddy.lvlmonitor.seungju.BsItemAdapter;
+import com.guardiansofgalakddy.lvlmonitor.seungju.OnBSItemClickListener;
 
 public class SearchBsActivity extends AppCompatActivity {
     private BroadcastReceiver receiver = null;
     private BLEScanner scanner = null;
 
-    RecyclerAdapter3 adapter;
+    BsItemAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,20 +57,30 @@ public class SearchBsActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                adapter.clearData();
                 scanner.discoverBS();
             }
         });
 
-        init();
+        initAdapter();
     }
 
-    private void init() {
+    private void initAdapter() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        adapter = new RecyclerAdapter3();
+        adapter = new BsItemAdapter();
+        adapter.setOnItemClickListener(new OnBSItemClickListener() {
+            @Override
+            public void onItemClick(BsItemAdapter.ItemViewHolder holder, View view, int position) {
+                BsData data = adapter.getBsData(position);
+                Intent intent = new Intent(getApplicationContext(), CollectorActivity.class);
+                intent.putExtra("DEVICE", data.getDevice());
+                startActivity(intent);
+            }
+        });
         recyclerView.setAdapter(adapter);
     }
 }

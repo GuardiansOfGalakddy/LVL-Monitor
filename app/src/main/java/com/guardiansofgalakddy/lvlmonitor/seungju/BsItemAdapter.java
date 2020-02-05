@@ -13,8 +13,9 @@ import com.guardiansofgalakddy.lvlmonitor.R;
 
 import java.util.ArrayList;
 
-public class RecyclerAdapter3 extends RecyclerView.Adapter<RecyclerAdapter3.ItemViewHolder> {
+public class BsItemAdapter extends RecyclerView.Adapter<BsItemAdapter.ItemViewHolder> implements OnBSItemClickListener{
     private ArrayList<BsData> listData = new ArrayList<>();
+    private OnBSItemClickListener listener = null;
 
 
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -36,7 +37,21 @@ public class RecyclerAdapter3 extends RecyclerView.Adapter<RecyclerAdapter3.Item
         return listData.size();
     }
 
+    public BsData getBsData(int position) {
+        return listData.get(position);
+    }
+
+    private boolean isAlreadyExist(BsData data) {
+        for (BsData d : listData)
+            if (d.getContent().equals(data.getContent()))
+                return true;
+        return false;
+    }
+
     public void addItem(BsData data) {
+        if (isAlreadyExist(data))
+            return;
+
         // 외부에서 item을 추가시킬 함수입니다.
         listData.add(data);
         this.notifyDataSetChanged();
@@ -44,7 +59,7 @@ public class RecyclerAdapter3 extends RecyclerView.Adapter<RecyclerAdapter3.Item
 
     // RecyclerView의 핵심인 ViewHolder 입니다.
     // 여기서 subView를 setting 해줍니다.
-    class ItemViewHolder extends RecyclerView.ViewHolder {
+    public class ItemViewHolder extends RecyclerView.ViewHolder {
 
         private TextView textView1;
         private TextView textView2;
@@ -54,11 +69,35 @@ public class RecyclerAdapter3 extends RecyclerView.Adapter<RecyclerAdapter3.Item
 
             textView1 = itemView.findViewById(R.id.textView1);
             textView2 = itemView.findViewById(R.id.textView2);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+                    if (listener != null)
+                        listener.onItemClick(BsItemAdapter.ItemViewHolder.this, view, position);
+                }
+            });
         }
 
         void onBind(BsData data) {
             textView1.setText(data.getTitle());
             textView2.setText(data.getContent());
         }
+    }
+
+    public void setOnItemClickListener(OnBSItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void onItemClick(ItemViewHolder holder, View view, int position) {
+        if (listener != null)
+            listener.onItemClick(holder, view, position);
+    }
+
+    public void clearData() {
+        this.listData.clear();
+        this.notifyDataSetChanged();
     }
 }

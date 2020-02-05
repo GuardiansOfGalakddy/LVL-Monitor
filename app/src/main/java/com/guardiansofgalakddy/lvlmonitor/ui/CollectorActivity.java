@@ -106,6 +106,7 @@ public class CollectorActivity extends AppCompatActivity {
         btnRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                adapter.clearData();
                 scanner.requestHistory();
             }
         });
