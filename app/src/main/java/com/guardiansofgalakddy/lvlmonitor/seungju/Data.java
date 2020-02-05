@@ -1,16 +1,18 @@
 package com.guardiansofgalakddy.lvlmonitor.seungju;
 
-import android.bluetooth.BluetoothDevice;
 
 public class Data {
-    private BluetoothDevice device;
+    //private BluetoothDevice device;
     private String title;
     private byte[] content;
     private int resId;
 
-    public Data(String title, byte[] content, BluetoothDevice device, int resId) {
-        this.device = device;
-        this.title = title;
+    public Data(String title, byte[] content/*, BluetoothDevice device*/, int resId) {
+        //this.device = device;
+        if (title == null)
+            this.title = "null";
+        else
+            this.title = title;
         this.content = content;
         this.resId = resId;
     }
@@ -39,11 +41,11 @@ public class Data {
         this.resId = resId;
     }
 
-    public BluetoothDevice getDevice() {
+/*    public BluetoothDevice getDevice() {
         return device;
     }
 
     public void setDevice(BluetoothDevice device) {
         this.device = device;
-    }
+    }*/
 }

@@ -26,7 +26,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.DBlistActivity"></activity>
+        <activity android:name=".ui.SearchBsActivity"></activity>
+        <activity android:name=".ui.DBlistActivity" />
 
         <uses-library android:name="com.google.android.maps" />
         <uses-library

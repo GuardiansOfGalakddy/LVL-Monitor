@@ -26,7 +26,7 @@ import com.pedro.library.AutoPermissionsListener;
 
 public class MainActivity extends AppCompatActivity implements AutoPermissionsListener {
     private DrawerLayout drawerLayout;
-    private LinearLayout button1;//, button2;
+    private LinearLayout button1, button2;
 
     /* Back button check */
     private long pressedTime = 0;
@@ -86,15 +86,15 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
                 startActivity(intent);
             }
         });
-
-/*        button2 = findViewById(R.id.btn_collector);
+        button2 = findViewById(R.id.btn_collector);
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), CollectorActivity.class);
+                Intent intent = new Intent(getApplicationContext(), SearchBsActivity.class);
                 startActivity(intent);
             }
-        });*/
+        });
+
 
         /* AutoPermission 권한 요청 */
         AutoPermissions.Companion.loadAllPermissions(this, 101);
