@@ -1,11 +1,11 @@
 package com.guardiansofgalakddy.lvlmonitor.seungju;
 
-public class dbData {
+public class DbData {
     private String title;
     private double content;
     private double resId;
 
-    public dbData(String title, double content, double resId) {
+    public DbData(String title, double content, double resId) {
         this.title = title;
         this.content = content;
         this.resId = resId;

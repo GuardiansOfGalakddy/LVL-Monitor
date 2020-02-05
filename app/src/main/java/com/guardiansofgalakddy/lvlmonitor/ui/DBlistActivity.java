@@ -16,7 +16,7 @@ import android.widget.ListView;
 import com.guardiansofgalakddy.lvlmonitor.R;
 import com.guardiansofgalakddy.lvlmonitor.seungju.BaseAdapterEx;
 import com.guardiansofgalakddy.lvlmonitor.seungju.LVLDBManager;
-import com.guardiansofgalakddy.lvlmonitor.seungju.dbData;
+import com.guardiansofgalakddy.lvlmonitor.seungju.DbData;
 
 import java.util.ArrayList;
 
@@ -24,7 +24,7 @@ public class DBlistActivity extends AppCompatActivity {
 
     ListView mListView = null;
     BaseAdapterEx mAdapter = null;
-    ArrayList<dbData> mData = null; // mData 는 임의로 넣어준 데이터 원래는 db값을 저장해야됨
+    ArrayList<DbData> mData = null; // mData 는 임의로 넣어준 데이터 원래는 db값을 저장해야됨
     public LVLDBManager mDbManager = null;
     Context Thiscontext = this;
     int po = 0;
@@ -36,11 +36,11 @@ public class DBlistActivity extends AppCompatActivity {
 
         mDbManager = LVLDBManager.getInstance(this);
 
-        mData = new ArrayList<dbData>();
+        mData = new ArrayList<DbData>();
 
 
         for (int i = 0; i < mDbManager.count(); i++) {
-            dbData data = new dbData("Title" + String.valueOf(i), i, i + 100);
+            DbData data = new DbData("Title" + String.valueOf(i), i, i + 100);
             mData.add(data);
         }
 
@@ -60,7 +60,7 @@ public class DBlistActivity extends AppCompatActivity {
                 double latitude = c.getDouble(1);
                 double longtude = c.getDouble(2);
 
-                dbData data = new dbData(systemid, latitude, longtude);
+                DbData data = new DbData(systemid, latitude, longtude);
                 mData.add(data);
 
                 Log.e("dbdb", systemid + "  " + String.valueOf(latitude) + "  " + String.valueOf(longtude));

@@ -1,14 +1,12 @@
 package com.guardiansofgalakddy.lvlmonitor.seungju;
 
 
-public class Data {
-    //private BluetoothDevice device;
+public class RsData {
     private String title;
     private byte[] content;
     private int resId;
 
-    public Data(String title, byte[] content/*, BluetoothDevice device*/, int resId) {
-        //this.device = device;
+    public RsData(String title, byte[] content, int resId) {
         if (title == null)
             this.title = "null";
         else
@@ -40,12 +38,4 @@ public class Data {
     public void setResId(int resId) {
         this.resId = resId;
     }
-
-/*    public BluetoothDevice getDevice() {
-        return device;
-    }
-
-    public void setDevice(BluetoothDevice device) {
-        this.device = device;
-    }*/
 }
