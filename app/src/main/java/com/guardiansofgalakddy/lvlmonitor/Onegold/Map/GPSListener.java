@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
@@ -19,16 +18,13 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.guardiansofgalakddy.lvlmonitor.R;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.DB2OthersConnector;
 import com.guardiansofgalakddy.lvlmonitor.seungju.LVLDBManager;
 import com.guardiansofgalakddy.lvlmonitor.superb.MarkerDialog;
-import com.guardiansofgalakddy.lvlmonitor.ui.MonitorActivity;
 
 import java.util.HashMap;
 

@@ -76,7 +76,7 @@ public class CollectorActivity extends AppCompatActivity {
                     title.append(String.format("%02X", history[2] & 0xff).charAt(0) == '0' ? "BS-" : "RS-");
                     title.append(String.format("%02X", history[1] & 0xff));
                     title.append(String.format("%02X", history[0] & 0xff));
-                    adapter.addItem(new Data(title.toString(), history, null, R.drawable.blank));
+                    adapter.addItem(new Data(title.toString(), history, R.drawable.blank));
                 }
             }
         };

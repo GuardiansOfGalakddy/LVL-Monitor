@@ -14,10 +14,7 @@ public class HistoryDialog extends Dialog {
     byte[] uuid = null;
     String strUUID = null;
 
-    /*private Button button;
-    private Button deleteBtn;*/
     private TextView txtNID, txtAID, txtSEV, txtVal1, txtVal2, txtTH1, txtTH2, txtALM, txtOCRTIME, txtRLSTIME = null;
-    //private TextView txtSTS = null;
 
     public HistoryDialog(@NonNull Context context) {
         super(context);
@@ -35,10 +32,8 @@ public class HistoryDialog extends Dialog {
         txtVal2 = findViewById(R.id.txtVal2);
         txtTH1 = findViewById(R.id.txtTH1);
         txtTH2 = findViewById(R.id.txtTH2);
-        //txtSTS = findViewById(R.id.txt5);
         txtOCRTIME = findViewById(R.id.txtOCRTIME);
         txtRLSTIME = findViewById(R.id.txtRLSTIME);
-        //showData();
         showHistory();
     }
 

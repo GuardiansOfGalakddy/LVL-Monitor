@@ -2,17 +2,13 @@ package com.guardiansofgalakddy.lvlmonitor.ui;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -32,10 +28,8 @@ import com.guardiansofgalakddy.lvlmonitor.R;
 import com.guardiansofgalakddy.lvlmonitor.seungju.OnItemClickListener;
 import com.guardiansofgalakddy.lvlmonitor.seungju.RecyclerAdapter;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
-import com.google.android.gms.maps.model.LatLng;
 
 import com.guardiansofgalakddy.lvlmonitor.seungju.LVLDBManager;
-import com.guardiansofgalakddy.lvlmonitor.superb.HistoryDialog;
 
 /* Google Map 관련 코드 - 천우진
  *  GPSListener, startLocationService(), initGoogleMap()
@@ -69,11 +63,11 @@ public class MonitorActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if (intent == null)
                     return;
-                BluetoothDevice device = intent.getParcelableExtra("DEVICE");
+                //BluetoothDevice device = intent.getParcelableExtra("DEVICE");
                 byte[] data = intent.getByteArrayExtra("MANUFACTURER_DATA");
                 byte[] uuid = new byte[16];
                 byte[] content = new byte[4];
-/*                System.arraycopy(data, 2, uuid, 0, 16);
+                System.arraycopy(data, 2, uuid, 0, 16);
                 StringBuilder title = new StringBuilder();
                 try {
                     uuid = Aes.decrypt(uuid);
@@ -86,8 +80,8 @@ public class MonitorActivity extends AppCompatActivity {
                     title.append(String.format("%02X", content[0] & 0xff));
                 } catch (Exception e) {
                     e.printStackTrace();
-                }*/
-                adapter.addItem(new Data(device.getName(), content, device, R.drawable.ic_menu), cursor, gpsListener);
+                }
+                adapter.addItem(new Data(title.toString(), content/*, device*/, R.drawable.ic_menu), cursor, gpsListener);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
@@ -97,11 +91,11 @@ public class MonitorActivity extends AppCompatActivity {
         adapter.setOnItemListener(new OnItemClickListener() {
             @Override
             public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
-                Data data = adapter.getData(position);
+/*                Data data = adapter.getData(position);
                 //byte[] content = data.getContent();
                 Intent intent = new Intent(getApplicationContext(), CollectorActivity.class);
                 intent.putExtra("DEVICE", data.getDevice());
-                startActivity(intent);
+                startActivity(intent);*/
             }
         });
         initializeRecyclerView();
@@ -119,7 +113,7 @@ public class MonitorActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        scanner.discover();
+                        scanner.discoverRS();
                     }
                 }).start();
             }

@@ -17,14 +17,12 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.os.Handler;
+import android.os.ParcelUuid;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import com.guardiansofgalakddy.lvlmonitor.ui.CollectorActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,10 +141,10 @@ public class BLEScanner {
         }
     };
 
-    //discover() components
+    //discover components
     private BluetoothLeScanner mBluetoothLeScanner;
     private Handler mHandler = new Handler();
-    private ScanCallback mScanCallback = new ScanCallback() {
+    private ScanCallback rsScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
@@ -155,11 +153,39 @@ public class BLEScanner {
 
             byte[] data = result.getScanRecord().getManufacturerSpecificData().valueAt(0);
             Log.i("onScanResult", "Receive >> " + Aes.byteArrayToHexString(data));
-            device = result.getDevice();
+            //device = result.getDevice();
 
             Intent intent = new Intent();
             intent.setAction("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid");
             intent.putExtra("MANUFACTURER_DATA", data);
+            //intent.putExtra("DEVICE", device);
+            broadcastManager.sendBroadcast(intent);
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            super.onBatchScanResults(results);
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+        }
+    };
+
+    private ScanCallback bsScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            if (result == null)
+                return;
+
+            byte[] data = result.getScanRecord().getBytes();
+            Log.i("onScanResult", "Receive >> " + Aes.byteArrayToHexString(data));
+            device = result.getDevice();
+
+            Intent intent = new Intent();
+            intent.setAction("com.guardiansofgalakddy.lvlmonitor.action.broadcastbs");
             intent.putExtra("DEVICE", device);
             broadcastManager.sendBroadcast(intent);
         }
@@ -174,7 +200,7 @@ public class BLEScanner {
             super.onScanFailed(errorCode);
         }
     };
-    //discover() components
+    //discover components
 
     public Boolean initialize(Context context) {
         Log.i("BLEScanner", "initialize() called");
@@ -197,9 +223,9 @@ public class BLEScanner {
         return true;
     }
 
-    public void discover() {
+    public void discoverRS() {
         ScanFilter filter = new ScanFilter.Builder()
-                //.setManufacturerData(0x4C, BEACON_MANUFACTURER_DATA, BEACON_MANUFACTURER_DATA_MASK)
+                .setManufacturerData(0x4C, BEACON_MANUFACTURER_DATA, BEACON_MANUFACTURER_DATA_MASK)
                 .build();
 
         List<ScanFilter> filters = new ArrayList<>();
@@ -209,12 +235,34 @@ public class BLEScanner {
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 .build();
 
-        mBluetoothLeScanner.startScan(filters, settings, mScanCallback);
+        mBluetoothLeScanner.startScan(filters, settings, rsScanCallback);
 
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mBluetoothLeScanner.stopScan(mScanCallback);
+                mBluetoothLeScanner.stopScan(rsScanCallback);
+            }
+        }, 5000);
+    }
+
+    public void discoverBS() {
+        ScanFilter filter = new ScanFilter.Builder()
+                .setServiceUuid(new ParcelUuid(BLUETOOTH_LE_TELIT_SERVICE))
+                .build();
+
+        List<ScanFilter> filters = new ArrayList<>();
+        filters.add(filter);
+
+        ScanSettings settings = new ScanSettings.Builder()
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                .build();
+
+        mBluetoothLeScanner.startScan(filters, settings, bsScanCallback);
+
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mBluetoothLeScanner.stopScan(bsScanCallback);
             }
         }, 5000);
     }
