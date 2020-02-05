@@ -11,8 +11,8 @@ import com.guardiansofgalakddy.lvlmonitor.junhwa.Aes;
 
 public class HistoryDialog extends Dialog {
     //String uuid = null;
-    byte[] uuid = null;
-    String strUUID = null;
+    private byte[] uuid = null;
+    private String strUUID = null;
 
     private TextView txtNID, txtAID, txtSEV, txtVal1, txtVal2, txtTH1, txtTH2, txtALM, txtOCRTIME, txtRLSTIME = null;
 
@@ -43,17 +43,17 @@ public class HistoryDialog extends Dialog {
 
         NID = "BS-" + String.format("%02X", uuid[1]&0xff) + String.format("%02X", uuid[0]&0xff);
 
-        switch (strUUID.substring(5, 6)) {
-            case "0":
+        switch (strUUID.charAt(5)) {
+            case '0':
                 AID = "CH1(0)_Rogowski coil channel 1";
                 break;
-            case "1":
+            case '1':
                 AID = "CH2(1)_Rogowski coil channel 2";
                 break;
-            case "2":
+            case '2':
                 AID = "CH3(2)_Rogowski coil channel 3";
                 break;
-            case "3":
+            case '3':
                 AID = "WL(3)_침수 센서";
                 break;
             default:
@@ -61,14 +61,14 @@ public class HistoryDialog extends Dialog {
                 break;
         }
 
-        switch (strUUID.substring(6, 7)) {
-            case "0":
+        switch (strUUID.charAt(6)) {
+            case '0':
                 SEV = "CR(0)_Critical Alarm";
                 break;
-            case "1":
+            case '1':
                 SEV = "MJ(1)_Major Alarm";
                 break;
-            case "2":
+            case '2':
                 SEV = "MN(2)_Minor Alarm";
                 break;
             default:
@@ -76,14 +76,14 @@ public class HistoryDialog extends Dialog {
                 break;
         }
 
-        switch (strUUID.substring(7, 8)) {
-            case "0":
+        switch (strUUID.charAt(7)) {
+            case '0':
                 ALM = "COM_FAIL(0)_TID(RS)";
                 break;
-            case "1":
+            case '1':
                 ALM = "ECUR_MAX_TH_OVERRUN(1)_VALUE/TH_VALUE";
                 break;
-            case "2":
+            case '2':
                 ALM = "ECUR_MIN_TH_UNDERRUN(2)_VALUE/TH_VALUE";
                 break;
             default:
@@ -106,18 +106,18 @@ public class HistoryDialog extends Dialog {
         txtTH2.setText(TH2);
 
         StringBuilder ocrTimeBuilder = new StringBuilder();
-        ocrTimeBuilder.append(strUUID.substring(16, 18)).append("년")
+        ocrTimeBuilder.append("occurred : ")
+                .append(strUUID.substring(16, 18)).append("년")
                 .append(strUUID.substring(18, 20)).append("월")
                 .append(strUUID.substring(20, 22)).append("일")
                 .append(strUUID.substring(22, 24)).append("시")
                 .append(strUUID.substring(24, 26)).append("분")
                 .append(strUUID.substring(26, 28)).append("초");
-
         txtOCRTIME.setText(ocrTimeBuilder.toString());
 
         StringBuilder rlsTimeBuilder = new StringBuilder();
-
-        rlsTimeBuilder.append(strUUID.substring(32, 34)).append("년")
+        rlsTimeBuilder.append("released : ")
+                .append(strUUID.substring(32, 34)).append("년")
                 .append(strUUID.substring(34, 36)).append("월")
                 .append(strUUID.substring(36, 38)).append("일")
                 .append(strUUID.substring(38, 40)).append("시")

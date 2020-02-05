@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListener;
-import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListenerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.R;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.Aes;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.DB2OthersConnector;
@@ -20,7 +18,7 @@ import com.guardiansofgalakddy.lvlmonitor.junhwa.DB2OthersConnector;
 import java.util.ArrayList;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemViewHolder> implements OnItemClickListener {
-    private ArrayList<Data> listData = new ArrayList<>();
+    private ArrayList<RsData> listData = new ArrayList<>();
     private OnItemClickListener listener;
 
     @NonNull
@@ -44,7 +42,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
         return listData.size();
     }
 
-    public void addItem(Data data, Cursor cursor, GPSListener listener) {
+    public void addItem(RsData data, Cursor cursor, GPSListener listener) {
         if (isAlreadyExist(data))
             return;
         // 외부에서 item을 추가시킬 함수입니다.
@@ -56,13 +54,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
         this.notifyDataSetChanged();
     }
 
-    public void addItem(Data data) {
+    public void addItem(RsData data) {
         listData.add(data);
         this.notifyDataSetChanged();
     }
 
-    private Boolean isAlreadyExist(Data data) {
-        for (Data d : listData)
+    private Boolean isAlreadyExist(RsData data) {
+        for (RsData d : listData)
             if (d.getTitle().equals(data.getTitle()))
                 return true;
         return false;
@@ -92,7 +90,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
             });
         }
 
-        void onBind(Data data) {
+        void onBind(RsData data) {
             textView1.setText(data.getTitle());
             if (data.getContent().length == 16)
                 textView2.setText(data.getContent()[3] == 0 ? "noalarm" : "alarm");
@@ -102,7 +100,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
         }
     }
 
-    public Data getData(int position) {
+    public RsData getData(int position) {
         return listData.get(position);
     }
 

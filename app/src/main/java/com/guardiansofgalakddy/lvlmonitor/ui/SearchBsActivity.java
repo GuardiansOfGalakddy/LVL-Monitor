@@ -46,7 +46,7 @@ public class SearchBsActivity extends AppCompatActivity {
                 Log.d("onReceive()", deviceName + "/" + deviceMac);
 
                 adapter.addItem(new BsData(deviceName, deviceMac, device));
-                //adapter.addItem(new Data(device.getName(), content, device, R.drawable.ic_menu), cursor, gpsListener);
+                //adapter.addItem(new RsData(device.getName(), content, device, R.drawable.ic_menu), cursor, gpsListener);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).

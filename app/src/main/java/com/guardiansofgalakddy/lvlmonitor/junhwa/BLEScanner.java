@@ -66,11 +66,11 @@ public class BLEScanner {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                Log.i("gattCallback", "new State = Connected");
-                Log.i("gattCallback", "Attempting to start service discovery:" + bluetoothGatt.discoverServices());
+                Log.i("onConnectionStateChange", "new State = Connected");
+                Log.i("onConnectionStateChange", "Attempting to start service discovery:" + bluetoothGatt.discoverServices());
                 isConnected = true;
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.i("gattCallback", "new State = Disconnected");
+                Log.i("onConnectionStateChange", "new State = Disconnected");
                 isConnected = false;
             }
         }
@@ -158,7 +158,6 @@ public class BLEScanner {
             Intent intent = new Intent();
             intent.setAction("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid");
             intent.putExtra("MANUFACTURER_DATA", data);
-            //intent.putExtra("DEVICE", device);
             broadcastManager.sendBroadcast(intent);
         }
 
@@ -268,6 +267,7 @@ public class BLEScanner {
     }
 
     public void connect(BluetoothDevice device) {
+        mBluetoothLeScanner.stopScan(bsScanCallback);
         this.device = device;
         bluetoothGatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE);
     }

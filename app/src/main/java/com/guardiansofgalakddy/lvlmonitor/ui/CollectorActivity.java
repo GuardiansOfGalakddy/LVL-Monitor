@@ -26,10 +26,13 @@ import com.guardiansofgalakddy.lvlmonitor.R;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.Aes;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScanner;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScannerBuilder;
-import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
+import com.guardiansofgalakddy.lvlmonitor.seungju.RsData;
 import com.guardiansofgalakddy.lvlmonitor.seungju.OnItemClickListener;
 import com.guardiansofgalakddy.lvlmonitor.seungju.RecyclerAdapter;
 import com.guardiansofgalakddy.lvlmonitor.superb.HistoryDialog;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class CollectorActivity extends AppCompatActivity {
     public final static int NO_DEVICE = 103;
@@ -76,7 +79,7 @@ public class CollectorActivity extends AppCompatActivity {
                     title.append(String.format("%02X", history[2] & 0xff).charAt(0) == '0' ? "BS-" : "RS-");
                     title.append(String.format("%02X", history[1] & 0xff));
                     title.append(String.format("%02X", history[0] & 0xff));
-                    adapter.addItem(new Data(title.toString(), history, R.drawable.blank));
+                    adapter.addItem(new RsData(title.toString(), history, R.drawable.blank));
                 }
             }
         };
@@ -90,6 +93,20 @@ public class CollectorActivity extends AppCompatActivity {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                final Timer timer = new Timer();
+                TimerTask timerTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                btnRequest.setText("disconnected");
+                                btnRequest.setEnabled(false);
+                            }
+                        });
+                    }
+                };
+                timer.schedule(timerTask, 20000);
                 while (!scanner.getConnected())
                     ;
                 handler.post(new Runnable() {
@@ -97,6 +114,16 @@ public class CollectorActivity extends AppCompatActivity {
                     public void run() {
                         btnRequest.setText("request history");
                         btnRequest.setEnabled(true);
+                    }
+                });
+                timer.cancel();
+                while (scanner.getConnected())
+                    ;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        btnRequest.setText("disconnected");
+                        btnRequest.setEnabled(false);
                     }
                 });
             }
@@ -141,7 +168,7 @@ public class CollectorActivity extends AppCompatActivity {
         adapter.setOnItemListener(new OnItemClickListener() {
             @Override
             public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
-                Data data = adapter.getData(position);
+                RsData data = adapter.getData(position);
                 showDialog(data.getContent());
             }
         });

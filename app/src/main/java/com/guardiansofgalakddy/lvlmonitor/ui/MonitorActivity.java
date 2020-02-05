@@ -1,6 +1,5 @@
 package com.guardiansofgalakddy.lvlmonitor.ui;
 
-import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +21,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListenerBuilder;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.Aes;
 import com.guardiansofgalakddy.lvlmonitor.junhwa.BLEScannerBuilder;
-import com.guardiansofgalakddy.lvlmonitor.seungju.Data;
+import com.guardiansofgalakddy.lvlmonitor.seungju.RsData;
 import com.guardiansofgalakddy.lvlmonitor.Onegold.Map.GPSListener;
 import com.guardiansofgalakddy.lvlmonitor.R;
 import com.guardiansofgalakddy.lvlmonitor.seungju.OnItemClickListener;
@@ -81,7 +80,7 @@ public class MonitorActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                adapter.addItem(new Data(title.toString(), content/*, device*/, R.drawable.ic_menu), cursor, gpsListener);
+                adapter.addItem(new RsData(title.toString(), content/*, device*/, R.drawable.ic_menu), cursor, gpsListener);
             }
         };
         LocalBroadcastManager.getInstance(getApplicationContext()).
@@ -91,7 +90,7 @@ public class MonitorActivity extends AppCompatActivity {
         adapter.setOnItemListener(new OnItemClickListener() {
             @Override
             public void onItemClick(RecyclerAdapter.ItemViewHolder holder, View view, int position) {
-/*                Data data = adapter.getData(position);
+/*                RsData data = adapter.getData(position);
                 //byte[] content = data.getContent();
                 Intent intent = new Intent(getApplicationContext(), CollectorActivity.class);
                 intent.putExtra("DEVICE", data.getDevice());

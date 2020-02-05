@@ -13,10 +13,10 @@ import java.util.ArrayList;
 
 public class BaseAdapterEx extends BaseAdapter {
     Context             mContext        = null;
-    ArrayList<dbData>  mData           = null;
+    ArrayList<DbData>  mData           = null;
     LayoutInflater      mLayoutInflater = null;
 
-    public BaseAdapterEx(Context context, ArrayList<dbData> data )
+    public BaseAdapterEx(Context context, ArrayList<DbData> data )
     {
         mContext        = context;
         mData           = data;
@@ -32,7 +32,7 @@ public class BaseAdapterEx extends BaseAdapter {
     {
         return position;
     }
-    public void add( int index, dbData addData )
+    public void add( int index, DbData addData )
     {
         mData.add( index, addData );
         notifyDataSetChanged();
@@ -52,7 +52,7 @@ public class BaseAdapterEx extends BaseAdapter {
 
 
 
-    public dbData getItem(int position)
+    public DbData getItem(int position)
     {
         return mData.get(position);
     }
