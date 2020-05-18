@@ -120,7 +120,7 @@ public class BLEScanner {
                         System.arraycopy(data, 0, history, hPosition, 20);
                         hPosition += 20;
                     }
-                } else if (data.length == 20){
+                } else if (data.length == 20) {
                     history = new byte[data[10] * 24];
                     isReceiving = true;
                     System.arraycopy(data, 12, history, 0, 8);
@@ -152,12 +152,15 @@ public class BLEScanner {
                 return;
 
             byte[] data = result.getScanRecord().getManufacturerSpecificData().valueAt(0);
+            int rss = result.getRssi();
+            Log.i("RSSI", "RSSI : " + rss);
             Log.i("onScanResult", "Receive >> " + Aes.byteArrayToHexString(data));
             //device = result.getDevice();
 
             Intent intent = new Intent();
             intent.setAction("com.guardiansofgalakddy.lvlmonitor.action.broadcastuuid");
             intent.putExtra("MANUFACTURER_DATA", data);
+            intent.putExtra("RSSI", rss);
             broadcastManager.sendBroadcast(intent);
         }
 
@@ -182,6 +185,8 @@ public class BLEScanner {
             byte[] data = result.getScanRecord().getBytes();
             Log.i("onScanResult", "Receive >> " + Aes.byteArrayToHexString(data));
             device = result.getDevice();
+            int rss = result.getRssi();
+            Log.i("RSSI", "RSSI : " + rss);
 
             Intent intent = new Intent();
             intent.setAction("com.guardiansofgalakddy.lvlmonitor.action.broadcastbs");
